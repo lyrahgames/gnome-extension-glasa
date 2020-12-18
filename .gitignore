@@ -1,0 +1,11 @@
+*
+!*/
+
+!*.js
+!metadata.json
+
+!makefile
+
+!README.md
+
+!.gitignore

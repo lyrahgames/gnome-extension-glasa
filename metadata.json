@@ -1,0 +1,8 @@
+{
+    "uuid": "example@lyrahgames.github.io",
+    "name": "Example",
+    "description": "This extension puts an icon in the panel with a simple dropdown menu.",
+    "version": 1,
+    "shell-version": [ "3.36", "3.38" ],
+    "url": "https://github.com/lyrahgames"
+}
