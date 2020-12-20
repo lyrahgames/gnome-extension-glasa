@@ -1,13 +1,17 @@
-const St = imports.gi.St;
-const Gio = imports.gi.Gio;
-const Clutter = imports.gi.Clutter
+const Lang = imports.lang
+
+const Mainloop = imports.mainloop
+
+const Main = imports.ui.main;
+const Panel = imports.ui.panel;
+const PanelMenu = imports.ui.panelMenu;
+const PopupMenu = imports.ui.popupMenu;
+
+const {Clutter, Gtk, GLib, GObject, Gio, St} = imports.gi;
 const Cairo = imports.cairo
+
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
-const Main = imports.ui.main;
-const Mainloop = imports.mainloop
-const PanelMenu = imports.ui.panelMenu;
-const Lang = imports.lang
 
 
 class Extension {
@@ -21,14 +25,16 @@ class Extension {
     let indicatorName = `${Me.metadata.name} Indicator`;
     this._indicator = new PanelMenu.Button(0.0, indicatorName, false);
 
-    // let icon = new St.Icon({
-    //   gicon: new Gio.ThemedIcon({name: 'face-laugh-symbolic'}),
-    //   style_class: 'system-status-icon'
-    // });
 
-    let icon = new St.DrawingArea({width: 25, height: 25});
+    log(Panel.PANEL_SIZE);
+
+    const MARGIN = 2;
+    // let size = Panel.PANEL_ICON_SIZE - 2 * MARGIN;
+    let size = Panel.PANEL_ICON_SIZE;
+    // let size = 20;
+    let icon = new St.DrawingArea({width: size, height: size});
     icon._repaint_handler = icon.connect('repaint', Lang.bind(icon, function() {
-      let halfsize = 12.5;
+      let halfsize = icon.width / 2;
       let [area_x, area_y] = icon.get_transformed_position();
       let [mouse_x, mouse_y, mask] = global.get_pointer();
       mouse_x -= area_x + halfsize;
@@ -71,15 +77,25 @@ class Extension {
       cr.save();
       cr.restore();
     }));
-    icon._update_handler =
-        Mainloop.timeout_add(100, Lang.bind(icon, function() {
-          icon.queue_repaint();
-          return true;
-        }));
+    icon._update_handler = Mainloop.timeout_add(50, Lang.bind(icon, function() {
+      icon.queue_repaint();
+      return true;
+    }));
 
+    // icon.style_class = 'eye-icon';
 
-    this._indicator.add_child(icon);
+    let hbox = new St.BoxLayout({style_class: 'system-status-icon'});
+    hbox.add_child(icon);
+    // hbox.add_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
+    this._indicator.add_child(hbox);
     icon.queue_repaint();
+
+    this._indicator.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+    this._indicator.menu.addAction(
+        _('Preferences'),
+        event => {
+
+        });
 
     Main.panel.addToStatusArea(indicatorName, this._indicator);
   }
