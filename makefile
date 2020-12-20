@@ -1,5 +1,5 @@
 GNOME_EXTENSIONS_DIR = ~/.local/share/gnome-shell/extensions
-EXTENSION_UUID = example@lyrahgames.github.io
+EXTENSION_UUID = glasa@lyrahgames.github.io
 EXTENSION = extension.js
 METADATA = metadata.json
 STYLESHEET = stylesheet.css

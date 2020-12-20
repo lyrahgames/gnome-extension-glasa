@@ -19,10 +19,15 @@ Clone the repository.
 Change into the directory and run the makefile.
 
     cd gnome-extension-glasa
-    make enable
+    make
 
 Press `Alt+F2` and type `r` to restart the Gnome shell.
+Afterwards enable the extension.
+
+    make enable
+
 You should now be able to see the eyes icon appear in the panel.
+Otherwise, restart the Gnome shell again by pressing `Alt+F2` and typing `r`.
 
 To delete the extension, disable it and delete it.
 
