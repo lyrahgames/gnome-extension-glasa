@@ -7,17 +7,14 @@ const Panel = imports.ui.panel;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 
-const {Clutter, Gtk, GLib, GObject, Gio, St} = imports.gi;
+const { Clutter, Gtk, GLib, GObject, Gio, St } = imports.gi;
 const Cairo = imports.cairo
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
-
 class Extension {
-  constructor() {
-    this._indicator = null;
-  }
+  constructor() { this._indicator = null; }
 
   enable() {
     log(`enabling ${Me.metadata.name}`);
@@ -26,9 +23,10 @@ class Extension {
     this._indicator = new PanelMenu.Button(0.0, indicatorName, false);
 
     let size = Panel.PANEL_ICON_SIZE;
-    let icon = new St.DrawingArea({width: 2 * size, height: size});
+    let icon = new St.DrawingArea({ width: 3 * size, height: size });
     icon._repaint_handler = icon.connect('repaint', Lang.bind(icon, function() {
       let halfsize = icon.height / 2;
+      let halfwidth = icon.width / 2;
       let [area_x, area_y] = icon.get_transformed_position();
       let [mouse_x, mouse_y, mask] = global.get_pointer();
 
@@ -44,15 +42,18 @@ class Extension {
       eye_radius -= EYE_LINE_WIDTH / 2;
       eyebrow_radius -= EYE_LINE_WIDTH / 2;
       let center_y = halfsize * (EYEBROW_SCALE + 1) / 2;
-      let left_center_x = 2 * halfsize - eye_radius;
-      let right_center_x = 2 * halfsize + eye_radius;
+      // let left_center_x = 2 * halfsize - eye_radius;
+      // let right_center_x = 2 * halfsize + eye_radius;
+      let left_center_x = halfwidth - eye_radius;
+      let right_center_x = halfwidth + eye_radius;
 
       mouse_x -= area_x + 2 * halfsize;
       mouse_y -= area_y + center_y;
 
       let factor = Math.sqrt(mouse_x * mouse_x + mouse_y * mouse_y) /
-          (RELIEF_FACTOR * eye_radius);
-      if (factor > RELIEF_FACTOR_BOUND) factor = RELIEF_FACTOR_BOUND;
+        (RELIEF_FACTOR * eye_radius);
+      if (factor > RELIEF_FACTOR_BOUND)
+        factor = RELIEF_FACTOR_BOUND;
       let iris_move = eye_radius * IRIS_MOVE * factor;
 
       // Get and set up the Cairo context.
@@ -100,18 +101,16 @@ class Extension {
 
     // icon.style_class = 'eye-icon';
 
-    let hbox = new St.BoxLayout({style_class: 'system-status-icon'});
+    let hbox = new St.BoxLayout({ style_class: 'system-status-icon' });
     hbox.add_child(icon);
     // hbox.add_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
     this._indicator.add_child(hbox);
     icon.queue_repaint();
 
     this._indicator.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-    this._indicator.menu.addAction(
-        _('I am with you. Keep on!'),
-        event => {
+    this._indicator.menu.addAction(_('I am with you. Keep on!'), event => {
 
-        });
+    });
 
     Main.panel.addToStatusArea(indicatorName, this._indicator);
   }
@@ -123,7 +122,6 @@ class Extension {
     this._indicator = null;
   }
 }
-
 
 function init() {
   log(`initializing ${Me.metadata.name}`);
