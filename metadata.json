@@ -3,6 +3,6 @@
   "name": "Glasa",
   "description": "This extension puts an icon in the panel consisting of two comic-like eyes following the cursor.",
   "version": 1,
-  "shell-version": ["3.36", "3.38", "40.1"],
+  "shell-version": ["3.36", "3.38", "40.1", "41.1"],
   "url": "https://github.com/lyrahgames/gnome-extension-glasa"
 }
