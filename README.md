@@ -1,14 +1,26 @@
-# Gnome Extension: Glasa
-
-This extension puts an icon in the panel consisting of two comic-like eyes following the cursor.
-It is meant as a present and not to be confused with a fully robust Gnome extension.
-Have fun with it.
-
-![Screenshot](docs/images/screenshot.png)
+<h1 align="center">
+    Gnome Extension: Glasa
+</h1>
+<p align="center">
+    This extension puts an icon in the panel consisting of two comic-like eyes following the cursor.
+    It is meant as a present and not to be confused with a fully robust Gnome extension.
+    Have fun with it.
+</p>
+<p align="center">
+    <img src="https://img.shields.io/github/languages/top/lyrahgames/gnome-extension-glasa.svg?style=for-the-badge">
+    <img src="https://img.shields.io/github/languages/code-size/lyrahgames/gnome-extension-glasa.svg?style=for-the-badge">
+    <img src="https://img.shields.io/github/repo-size/lyrahgames/gnome-extension-glasa.svg?style=for-the-badge">
+    <a href="COPYING">
+        <img src="https://img.shields.io/github/license/lyrahgames/gnome-extension-glasa.svg?style=for-the-badge&color=blue">
+    </a>
+</p>
+<p align="center">
+    <img src="docs/images/screenshot.png" align="center">
+</p>
 
 ## Author
 
-- Markus Pawellek "lyrahgames" (markus.pawellek@mailbox.org)
+- lyrahgames (lyrahgames@mailbox.org)
 
 ## Usage
 
