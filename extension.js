@@ -1,5 +1,3 @@
-const Lang = imports.lang
-
 const Mainloop = imports.mainloop
 
 const Main = imports.ui.main;
@@ -14,17 +12,19 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 class Extension {
-  constructor() { this._indicator = null; }
+  constructor() {
+    this._indicator = null;
+  }
 
   enable() {
-    log(`enabling ${Me.metadata.name}`);
+    // log(`enabling ${Me.metadata.name}`);
 
     let indicatorName = `${Me.metadata.name} Indicator`;
     this._indicator = new PanelMenu.Button(0.0, indicatorName, false);
 
     let size = Panel.PANEL_ICON_SIZE;
     let icon = new St.DrawingArea({ width: 3 * size, height: size });
-    icon._repaint_handler = icon.connect('repaint', Lang.bind(icon, function() {
+    icon._repaint_handler = icon.connect('repaint', () => {
       let halfsize = icon.height / 2;
       let halfwidth = icon.width / 2;
       let [area_x, area_y] = icon.get_transformed_position();
@@ -52,8 +52,7 @@ class Extension {
 
       let factor = Math.sqrt(mouse_x * mouse_x + mouse_y * mouse_y) /
         (RELIEF_FACTOR * eye_radius);
-      if (factor > RELIEF_FACTOR_BOUND)
-        factor = RELIEF_FACTOR_BOUND;
+      if (factor > RELIEF_FACTOR_BOUND) factor = RELIEF_FACTOR_BOUND;
       let iris_move = eye_radius * IRIS_MOVE * factor;
 
       // Get and set up the Cairo context.
@@ -93,11 +92,11 @@ class Extension {
       cr.arc(0, 0, eye_radius * IRIS_SIZE, 0, 2 * Math.PI);
       cr.fill();
       cr.restore();
-    }));
-    icon._update_handler = Mainloop.timeout_add(50, Lang.bind(icon, function() {
+    });
+    icon._update_handler = Mainloop.timeout_add(50, () => {
       icon.queue_repaint();
       return true;
-    }));
+    });
 
     // icon.style_class = 'eye-icon';
 
@@ -108,23 +107,23 @@ class Extension {
     icon.queue_repaint();
 
     this._indicator.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-    this._indicator.menu.addAction(_('I am with you. Keep on!'), event => {
+    this._indicator.menu.addAction(
+      _('I am with you. Keep on!'),
+      event => {
 
-    });
+      });
 
     Main.panel.addToStatusArea(indicatorName, this._indicator);
   }
 
   disable() {
-    log(`disabling ${Me.metadata.name}`);
-
+    // log(`disabling ${Me.metadata.name}`);
     this._indicator.destroy();
     this._indicator = null;
   }
 }
 
 function init() {
-  log(`initializing ${Me.metadata.name}`);
-
+  // log(`initializing ${Me.metadata.name}`);
   return new Extension();
 }
