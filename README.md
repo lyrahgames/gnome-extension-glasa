@@ -13,6 +13,9 @@
     <a href="COPYING">
         <img src="https://img.shields.io/github/license/lyrahgames/gnome-extension-glasa.svg?style=for-the-badge&color=blue">
     </a>
+    <a href="https://extensions.gnome.org/extension/4780/glasa/">
+        <img src="https://img.shields.io/website/https/extensions.gnome.org/extension/4780/glasa.svg?down_message=offline&label=extensions.gnome.org&style=for-the-badge&up_color=blue&up_message=online">
+    </a>
 </p>
 <p align="center">
     <img src="docs/images/screenshot.png" align="center">
