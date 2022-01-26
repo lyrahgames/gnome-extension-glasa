@@ -13,3 +13,5 @@
 !docs/**
 
 !.gitignore
+
+*.zip
