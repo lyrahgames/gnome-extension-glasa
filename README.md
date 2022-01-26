@@ -46,3 +46,8 @@ To delete the extension, disable it and delete it.
     make disable
     make clean
 
+## Distribution of ZIP File
+
+The following command will create a compressed ZIP file for distribution on GNOME shell extensions web page.
+
+    make dist
