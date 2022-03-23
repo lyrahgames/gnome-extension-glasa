@@ -113,7 +113,8 @@ class Extension {
 
       });
 
-    Main.panel.addToStatusArea(indicatorName, this._indicator);
+//    Main.panel.addToStatusArea(indicatorName, this._indicator);
+    Main.panel._addToPanelBox(indicatorName, this._indicator, -1, panel); 
   }
 
   disable() {
