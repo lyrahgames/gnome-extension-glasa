@@ -114,6 +114,7 @@ class Extension {
       });
 
 //    Main.panel.addToStatusArea(indicatorName, this._indicator);
+    let panel = Main.panel._centerBox
     Main.panel._addToPanelBox(indicatorName, this._indicator, -1, panel); 
   }
 
