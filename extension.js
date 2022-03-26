@@ -23,7 +23,8 @@ class Extension {
     // make changing it update the extension indicator.
     this._settings =
       ExtensionUtils.getSettings('org.gnome.shell.extensions.glasa');
-    this._settings.connect('changed', () => {
+    this._settings_handler = null;
+    this._settings_handler = this._settings.connect('changed', () => {
       this._position_changed();
     });
 
@@ -34,7 +35,8 @@ class Extension {
     // Provide the drawing function for the indicator icon.
     let size = Panel.PANEL_ICON_SIZE;
     this._icon = new St.DrawingArea({ width: 3 * size, height: size });
-    this._icon.connect('repaint', () => {
+    this._repaint_handler = null;
+    this._repaint_handler = this._icon.connect('repaint', () => {
       this._draw_eyes();
     });
 
@@ -160,10 +162,21 @@ class Extension {
 
   disable() {
     // log(`disabling ${Me.metadata.name}`);
+    if (this._settings_handler) {
+      this._settings.disconnect(this._settings_handler);
+      this._settings_handler = null;
+    }
+
     if (this._update_handler) {
       GLib.Source.remove(this._update_handler);
       this._update_handler = null;
     }
+
+    if (this._repaint_handler) {
+      this._icon.disconnect(this._repaint_handler);
+      this._repaint_handler = null;
+    }
+
     // Destroy indicator and icon.
     this._indicator.destroy();
     // Reset.
