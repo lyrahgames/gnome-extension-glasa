@@ -54,3 +54,9 @@ To delete the extension, disable it and delete it.
 The following command will create a compressed ZIP file for distribution on GNOME shell extensions web page.
 
     make dist
+
+## References
+
+- [GJS Guide](https://gjs.guide/)
+- [Port Extensions to GNOME Shell 40](https://gjs.guide/extensions/upgrading/gnome-shell-40.html)
+- [Port Extensions to GNOME Shell 42](https://gjs.guide/extensions/upgrading/gnome-shell-42.html#metadata-json)
