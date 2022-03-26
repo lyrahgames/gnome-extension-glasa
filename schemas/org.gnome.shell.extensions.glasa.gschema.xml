@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.glasa" path="/org/gnome/shell/extensions/glasa/">
+    <key name="panel-box" type="i">
+      <default>1</default>
+      <summary>Panel Box Location</summary>
+      <description>Top panel box where eyes will be displayed</description>
+    </key>
+    <key name="panel-box-location" type="i">
+      <default>0</default>
+      <summary>Detailed Location in Panel Box</summary>
+      <description>Detailed position inside the top panel box</description>
+    </key>
+  </schema>
+</schemalist>

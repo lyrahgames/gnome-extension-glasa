@@ -19,6 +19,10 @@ class Extension {
   enable() {
     // log(`enabling ${Me.metadata.name}`);
 
+    this.settings =
+      ExtensionUtils.getSettings('org.gnome.shell.extensions.glasa');
+    this.settings.connect('changed', this._positionChanged.bind(this));
+
     let indicatorName = `${Me.metadata.name} Indicator`;
     this._indicator = new PanelMenu.Button(0.0, indicatorName, false);
 
@@ -93,6 +97,7 @@ class Extension {
       cr.fill();
       cr.restore();
     });
+
     icon._update_handler = Mainloop.timeout_add(50, () => {
       icon.queue_repaint();
       return true;
@@ -106,14 +111,32 @@ class Extension {
     this._indicator.add_child(hbox);
     icon.queue_repaint();
 
-    this._indicator.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+    // this._indicator.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
     this._indicator.menu.addAction(
-      _('I am with you. Keep on!'),
-      event => {
-
-      });
+      _('I am still with you. Keep on!'), event => {});
+    this._indicator.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+    this._indicator.menu.addAction(_('Settings'), () => {
+      Gio.DBus.session.call(
+        'org.gnome.Shell.Extensions', '/org/gnome/Shell/Extensions',
+        'org.gnome.Shell.Extensions', 'OpenExtensionPrefs',
+        new GLib.Variant('(ssa{sv})', [Me.uuid, '', {}]), null,
+        Gio.DBusCallFlags.NONE, -1, null);
+    });
 
     Main.panel.addToStatusArea(indicatorName, this._indicator);
+    this._positionChanged();
+  }
+
+  _positionChanged() {
+    this._indicator.get_parent().remove_actor(this._indicator);
+    let boxes = {
+      0: Main.panel._leftBox,
+      1: Main.panel._centerBox,
+      2: Main.panel._rightBox,
+    };
+    let p = this.settings.get_int('panel-box');
+    let q = this.settings.get_int('panel-box-location');
+    boxes[p].insert_child_at_index(this._indicator, q);
   }
 
   disable() {

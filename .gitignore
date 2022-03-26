@@ -4,6 +4,7 @@
 !*.js
 !metadata.json
 !*.css
+!*.xml
 
 !makefile
 
