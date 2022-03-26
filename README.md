@@ -36,7 +36,8 @@ Change into the directory and run the makefile.
     cd gnome-extension-glasa
     make
 
-Press `Alt+F2` and type `r` to restart the Gnome shell.
+Press `Alt+F2` and type `r` to restart the Gnome shell if you are running on X11.
+In the case you are running on Wayland log out and in again.
 Afterwards enable the extension.
 
     make enable
@@ -44,16 +45,23 @@ Afterwards enable the extension.
 You should now be able to see the eyes icon appear in the panel.
 Otherwise, restart the Gnome shell again by pressing `Alt+F2` and typing `r`.
 
-To delete the extension, disable it and delete it.
+You can disable the extension as follows.
 
     make disable
-    make clean
+
+For uninstalling, run the following command.
+
+    make uninstall
+
+Show the preferences window for the extension.
+
+    make prefs
 
 ## Distribution of ZIP File
 
 The following command will create a compressed ZIP file for distribution on GNOME shell extensions web page.
 
-    make dist
+    make pack
 
 ## References
 
