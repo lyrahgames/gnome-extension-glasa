@@ -5,29 +5,34 @@ const Panel = imports.ui.panel;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 
-const { Clutter, Gtk, GLib, GObject, Gio, St } = imports.gi;
+const {Clutter, Gtk, GLib, GObject, Gio, St} = imports.gi;
 const Cairo = imports.cairo
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 class Extension {
-  constructor() {
-    this._indicator = null;
-  }
+  constructor() { this._indicator = null; }
 
   enable() {
     // log(`enabling ${Me.metadata.name}`);
 
+    // Retrieve the extension's settings and
+    // make changing it update the extension indicator.
     this.settings =
-      ExtensionUtils.getSettings('org.gnome.shell.extensions.glasa');
-    this.settings.connect('changed', this._positionChanged.bind(this));
+        ExtensionUtils.getSettings('org.gnome.shell.extensions.glasa');
+    // this.settings.connect('changed', this._position_changed.bind(this));
+    this.settings.connect('changed', () => { this._position_changed(); });
 
+    // Set up the indicator itself.
     let indicatorName = `${Me.metadata.name} Indicator`;
     this._indicator = new PanelMenu.Button(0.0, indicatorName, false);
 
+    // Provide the drawing function for the indicator icon.
+    // Currently, this is done in-place.
+    // A member function would be better suited.
     let size = Panel.PANEL_ICON_SIZE;
-    let icon = new St.DrawingArea({ width: 3 * size, height: size });
+    let icon = new St.DrawingArea({width : 3 * size, height : size});
     icon._repaint_handler = icon.connect('repaint', () => {
       let halfsize = icon.height / 2;
       let halfwidth = icon.width / 2;
@@ -55,8 +60,9 @@ class Extension {
       mouse_y -= area_y + center_y;
 
       let factor = Math.sqrt(mouse_x * mouse_x + mouse_y * mouse_y) /
-        (RELIEF_FACTOR * eye_radius);
-      if (factor > RELIEF_FACTOR_BOUND) factor = RELIEF_FACTOR_BOUND;
+                   (RELIEF_FACTOR * eye_radius);
+      if (factor > RELIEF_FACTOR_BOUND)
+        factor = RELIEF_FACTOR_BOUND;
       let iris_move = eye_radius * IRIS_MOVE * factor;
 
       // Get and set up the Cairo context.
@@ -97,46 +103,52 @@ class Extension {
       cr.fill();
       cr.restore();
     });
-
+    // Repaint the eyes after a short time period.
     icon._update_handler = Mainloop.timeout_add(50, () => {
       icon.queue_repaint();
       return true;
     });
 
-    // icon.style_class = 'eye-icon';
-
-    let hbox = new St.BoxLayout({ style_class: 'system-status-icon' });
+    // The icon should be correctly styled and aligned.
+    let hbox = new St.BoxLayout({style_class : 'system-status-icon'});
     hbox.add_child(icon);
-    // hbox.add_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
     this._indicator.add_child(hbox);
     icon.queue_repaint();
 
-    // this._indicator.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-    this._indicator.menu.addAction(
-      _('I am still with you. Keep on!'), event => {});
+    // Set up the indicator's pop-up menu.
+    this._indicator.menu.addAction(_('I am still with you. Keep on!'),
+                                   event => {});
     this._indicator.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-    this._indicator.menu.addAction(_('Settings'), () => {
-      Gio.DBus.session.call(
-        'org.gnome.Shell.Extensions', '/org/gnome/Shell/Extensions',
-        'org.gnome.Shell.Extensions', 'OpenExtensionPrefs',
-        new GLib.Variant('(ssa{sv})', [Me.uuid, '', {}]), null,
-        Gio.DBusCallFlags.NONE, -1, null);
-    });
+    this._indicator.menu.addAction(_('Settings'),
+                                   () => { this._open_preferences(); });
 
+    // Initially, add the indicator to the status area.
+    // Afterwards, the position will be correctly determined.
+    // This could be done in a better way.
     Main.panel.addToStatusArea(indicatorName, this._indicator);
-    this._positionChanged();
+    this._position_changed();
   }
 
-  _positionChanged() {
+  _position_changed() {
     this._indicator.get_parent().remove_actor(this._indicator);
     let boxes = {
-      0: Main.panel._leftBox,
-      1: Main.panel._centerBox,
-      2: Main.panel._rightBox,
+      0 : Main.panel._leftBox,
+      1 : Main.panel._centerBox,
+      2 : Main.panel._rightBox,
     };
     let p = this.settings.get_int('panel-box');
     let q = this.settings.get_int('panel-box-location');
     boxes[p].insert_child_at_index(this._indicator, q);
+  }
+
+  _open_preferences() {
+    // I have copied this command from another extension
+    // (Arch-Linux Update Indicator)
+    Gio.DBus.session.call('org.gnome.Shell.Extensions',
+                          '/org/gnome/Shell/Extensions',
+                          'org.gnome.Shell.Extensions', 'OpenExtensionPrefs',
+                          new GLib.Variant('(ssa{sv})', [ Me.uuid, '', {} ]),
+                          null, Gio.DBusCallFlags.NONE, -1, null);
   }
 
   disable() {
