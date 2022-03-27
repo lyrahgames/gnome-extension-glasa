@@ -63,6 +63,11 @@ The following command will create a compressed ZIP file for distribution on GNOM
 
     make pack
 
+## Notes
+
+- This repository is based on the soure code from [eye by azathoth](https://extensions.gnome.org/extension/213/eye/).
+- A non-comic and more advanced alternative is given by [Eye and Mouse Extended on GitHub](https://github.com/alexeylovchikov/eye-extended-shell-extension) and [Eye and Mouse Extended on GNOME Extension Hub](https://extensions.gnome.org/extension/3139/eye-extended/).
+
 ## References
 
 - [GJS Guide](https://gjs.guide/)
