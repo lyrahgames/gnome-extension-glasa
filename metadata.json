@@ -2,7 +2,7 @@
   "uuid": "glasa@lyrahgames.github.io",
   "name": "Glasa",
   "description": "This extension puts an icon in the panel consisting of two comic-like eyes following the cursor.",
-  "version": 7,
-  "shell-version": ["40", "41"],
+  "version": 8,
+  "shell-version": ["42"],
   "url": "https://github.com/lyrahgames/gnome-extension-glasa"
 }
