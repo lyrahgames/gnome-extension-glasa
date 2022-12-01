@@ -1,6 +1,6 @@
 'use strict';
 
-const { Adw, Gio, Gtk } = imports.gi;
+const { Adw, Gtk } = imports.gi;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
@@ -9,8 +9,7 @@ function init() {}
 
 // Currently, the GUI is simple enough to not use the builder.
 function fillPreferencesWindow(window) {
-  const settings =
-    ExtensionUtils.getSettings('org.gnome.shell.extensions.glasa');
+  const settings = ExtensionUtils.getSettings();
 
   window.set_size_request(600, 200);
   window.set_default_size(800, 250);

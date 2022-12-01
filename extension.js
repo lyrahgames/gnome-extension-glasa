@@ -1,14 +1,10 @@
 'use strict';
 
-const Mainloop = imports.mainloop
-
 const Main = imports.ui.main;
 const Panel = imports.ui.panel;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
-
-const { Clutter, Gtk, GLib, GObject, Gio, St } = imports.gi;
-const Cairo = imports.cairo
+const { Clutter, GLib, Gio, St } = imports.gi;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
@@ -23,7 +19,7 @@ class Extension {
 
     // Retrieve the extension's settings and make changing them update the
     // extension indicator.
-    this._settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.glasa');
+    this._settings = ExtensionUtils.getSettings();
     this._settings_handler = null;
     this._settings_handler = this._settings.connect('changed', () => {
       this._position_changed();
