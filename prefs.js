@@ -21,15 +21,15 @@ function fillPreferencesWindow(window) {
   const group = new Adw.PreferencesGroup({ title: 'General' });
   page.add(group);
 
-  const row = new Adw.ActionRow({
-    title: 'Top Panel Location',
-    subtitle: 'Box and Order',
-  });
-  group.add(row);
-
   // Create group of toggle buttons to set the panel box.
   // Make sure to set the vertical alignment.
   // So, the buttons will not get stretched vertically.
+  const positionRow = new Adw.ActionRow({
+    title: 'Top Panel Location',
+    subtitle: 'Box and Order',
+  });
+  group.add(positionRow);
+
   const left_button =
     new Gtk.ToggleButton({ label: 'Left', valign: Gtk.Align.CENTER });
   const center_button =
@@ -60,16 +60,16 @@ function fillPreferencesWindow(window) {
   });
 
   // Add the toggle buttons to the action row.
-  row.add_suffix(left_button);
-  row.add_suffix(center_button);
-  row.add_suffix(right_button);
+  positionRow.add_suffix(left_button);
+  positionRow.add_suffix(center_button);
+  positionRow.add_suffix(right_button);
 
   // Inside each panel box, the order of indicators should be provided.
   // Use a spin button with the corresponding initial value.
   const init_panel_box_location = settings.get_int('panel-box-location');
   const number_button = new Gtk.SpinButton({ valign: Gtk.Align.CENTER });
   number_button.set_adjustment(new Gtk.Adjustment({
-    lower: 0,
+    lower: -100,
     upper: 100,
     value: init_panel_box_location,
     step_increment: 1,
@@ -84,5 +84,29 @@ function fillPreferencesWindow(window) {
   });
 
   // Add it to the GUI.
-  row.add_suffix(number_button);
+  positionRow.add_suffix(number_button);
+
+  // Create an option for a custom message in the eye menu.
+  const messageRow = new Adw.ActionRow({
+    title: 'Menu Message',
+    subtitle: 'Confirm with Enter'
+  });
+
+  group.add(messageRow);
+
+  // Create a text box where the user can enter the message
+  const panel_message = new Gtk.EntryBuffer({
+    text: settings.get_string('panel-message')
+  });
+  const panel_message_box = new Gtk.Entry({
+    buffer: panel_message,
+    hexpand: true,
+    valign:Gtk.Align.CENTER
+  })
+  // Make pressing Enter in the box update the message in settings
+  panel_message_box.connect('activate', () => {
+    settings.set_string('panel-message', panel_message.text);
+  });
+  // Add the box to the row
+  messageRow.add_suffix(panel_message_box);
 }

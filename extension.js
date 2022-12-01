@@ -1,3 +1,5 @@
+'use strict';
+
 const Mainloop = imports.mainloop
 
 const Main = imports.ui.main;
@@ -19,18 +21,14 @@ class Extension {
   enable() {
     // log(`enabling ${Me.metadata.name}`);
 
-    // Retrieve the extension's settings and
-    // make changing it update the extension indicator.
-    this._settings =
-      ExtensionUtils.getSettings('org.gnome.shell.extensions.glasa');
+    // Retrieve the extension's settings and make changing them update the
+    // extension indicator.
+    this._settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.glasa');
     this._settings_handler = null;
     this._settings_handler = this._settings.connect('changed', () => {
       this._position_changed();
+      this._popupmenu_created();
     });
-
-    // Set up the indicator itself.
-    let indicatorName = `${Me.metadata.name} Indicator`;
-    this._indicator = new PanelMenu.Button(0.0, indicatorName, false);
 
     // Provide the drawing function for the indicator icon.
     let size = Panel.PANEL_ICON_SIZE;
@@ -47,25 +45,22 @@ class Extension {
       return GLib.SOURCE_CONTINUE;
     });
 
+    // Set up the indicator itself.
+    let indicatorName = `${Me.metadata.name} Indicator`;
+    this._indicator = new PanelMenu.Button(0.0, indicatorName, false);
+
     // The icon should be correctly styled and aligned.
     let hbox = new St.BoxLayout({ style_class: 'system-status-icon' });
     hbox.add_child(this._icon);
     this._indicator.add_child(hbox);
     this._icon.queue_repaint();
 
-    // Set up the indicator's pop-up menu.
-    this._indicator.menu.addAction(
-      _('I am still with you. Keep on!'), event => {});
-    this._indicator.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-    this._indicator.menu.addAction(_('Settings'), () => {
-      this._open_preferences();
-    });
-
     // Initially, add the indicator to the status area.
     // Afterwards, the position will be correctly determined.
     // This could be done in a better way.
     Main.panel.addToStatusArea(indicatorName, this._indicator);
     this._position_changed();
+    this._popupmenu_created();
   }
 
   _position_changed() {
@@ -78,6 +73,19 @@ class Extension {
     let p = this._settings.get_int('panel-box');
     let q = this._settings.get_int('panel-box-location');
     boxes[p].insert_child_at_index(this._indicator, q);
+  }
+
+  _popupmenu_created() {
+    this._indicator.menu.removeAll();
+    this._indicator.menu.addAction(
+      this._settings.get_string('panel-message'),
+      () => {}
+    );
+    this._indicator.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+    this._indicator.menu.addAction(
+      'Settings',
+      () => { this._open_preferences() }
+    );
   }
 
   _open_preferences() {

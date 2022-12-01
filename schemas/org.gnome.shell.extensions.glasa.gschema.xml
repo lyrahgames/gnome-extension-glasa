@@ -11,5 +11,10 @@
       <summary>Detailed Location in Panel Box</summary>
       <description>Detailed position inside the top panel box</description>
     </key>
+    <key name="panel-message" type="s">
+      <default>'HELLO WORLD!'</default>
+      <summary>Indicator Menu Message</summary>
+      <description>Message visible when clicking on the eyes</description>
+    </key>
   </schema>
 </schemalist>
