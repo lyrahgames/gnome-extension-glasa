@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schemalist>
+<schemalist gettext-domain="glasa">
   <schema id="org.gnome.shell.extensions.glasa" path="/org/gnome/shell/extensions/glasa/">
     <key name="panel-box" type="i">
       <default>1</default>
@@ -10,6 +10,11 @@
       <default>0</default>
       <summary>Detailed Location in Panel Box</summary>
       <description>Detailed position inside the top panel box</description>
+    </key>
+    <key name="panel-message" type="s">
+      <default>'I am still with you. Keep on!'</default>
+      <summary>Indicator Menu Message</summary>
+      <description>Message visible when clicking on the eyes</description>
     </key>
   </schema>
 </schemalist>
