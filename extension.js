@@ -119,7 +119,7 @@ export default class GlasaExtension extends Extension {
     let left_center_x = halfwidth - eye_radius;
     let right_center_x = halfwidth + eye_radius;
 
-    mouse_x -= area_x + 2 * halfsize;
+    mouse_x -= area_x + halfwidth;
     mouse_y -= area_y + center_y;
 
     let factor = Math.sqrt(mouse_x * mouse_x + mouse_y * mouse_y) /
