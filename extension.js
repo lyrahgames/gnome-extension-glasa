@@ -101,6 +101,8 @@ export default class GlasaExtension extends Extension {
     let halfwidth = this._icon.width / 2;
     let [area_x, area_y] = this._icon.get_transformed_position();
     let [mouse_x, mouse_y, mask] = global.get_pointer();
+    let mouse_x_l = mouse_x;
+    let mouse_x_r = mouse_x;
 
     const EYE_LINE_WIDTH = 1.5;
     const RELIEF_FACTOR = 30;
@@ -120,12 +122,18 @@ export default class GlasaExtension extends Extension {
     let right_center_x = halfwidth + eye_radius;
 
     mouse_x -= area_x + halfwidth;
+    mouse_x_l -= area_x + left_center_x;
+    mouse_x_r -= area_x + right_center_x;
     mouse_y -= area_y + center_y;
 
-    let factor = Math.sqrt(mouse_x * mouse_x + mouse_y * mouse_y) /
+    let factor_left = Math.sqrt(mouse_x_l * mouse_x_l + mouse_y * mouse_y) /
       (RELIEF_FACTOR * eye_radius);
-    if (factor > RELIEF_FACTOR_BOUND) factor = RELIEF_FACTOR_BOUND;
-    let iris_move = eye_radius * IRIS_MOVE * factor;
+    let factor_right = Math.sqrt(mouse_x_r * mouse_x_r + mouse_y * mouse_y) /
+      (RELIEF_FACTOR * eye_radius);
+    if (factor_left > RELIEF_FACTOR_BOUND) factor_left = RELIEF_FACTOR_BOUND;
+    if (factor_right > RELIEF_FACTOR_BOUND) factor_right = RELIEF_FACTOR_BOUND;
+    let iris_move_left = eye_radius * IRIS_MOVE * factor_left;
+    let iris_move_right = eye_radius * IRIS_MOVE * factor_right;
 
     // Get and set up the Cairo context.
     let cr = this._icon.get_context();
@@ -143,9 +151,9 @@ export default class GlasaExtension extends Extension {
     cr.arc(0, 0, eyebrow_radius, 5 * Math.PI / 4, 6.5 * Math.PI / 4);
     cr.stroke();
     // Draw the left iris/pupil.
-    cr.rotate(Math.PI / 2 - Math.atan2(mouse_x, mouse_y));
-    cr.translate(iris_move, 0);
-    cr.scale(Math.cos(factor), 1);
+    cr.rotate(Math.PI / 2 - Math.atan2(mouse_x_l, mouse_y));
+    cr.translate(iris_move_left, 0);
+    cr.scale(Math.cos(factor_left), 1);
     cr.arc(0, 0, eye_radius * IRIS_SIZE, 0, 2 * Math.PI);
     cr.fill();
     cr.restore();
@@ -158,9 +166,9 @@ export default class GlasaExtension extends Extension {
     cr.arc(0, 0, eyebrow_radius, 5.5 * Math.PI / 4, 7 * Math.PI / 4);
     cr.stroke();
     // Draw the right iris/pupil.
-    cr.rotate(Math.PI / 2 - Math.atan2(mouse_x, mouse_y));
-    cr.translate(iris_move, 0);
-    cr.scale(Math.cos(factor), 1);
+    cr.rotate(Math.PI / 2 - Math.atan2(mouse_x_r, mouse_y));
+    cr.translate(iris_move_right, 0);
+    cr.scale(Math.cos(factor_right), 1);
     cr.arc(0, 0, eye_radius * IRIS_SIZE, 0, 2 * Math.PI);
     cr.fill();
     cr.restore();
