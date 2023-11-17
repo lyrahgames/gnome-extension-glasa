@@ -113,6 +113,8 @@ export default class GlasaExtension extends Extension {
     const IRIS_MOVE = 0.66;
     const IRIS_SIZE = 0.5;
     const EYEBROW_SCALE = 1.4;
+    const VARIABLE_RELIEF = 15;
+    const CROSS_EYE_SLOPE = 0.4;
 
     let eye_radius = 2 * halfsize / (1 + EYEBROW_SCALE);
     let eyebrow_radius = EYEBROW_SCALE * eye_radius;
@@ -124,7 +126,6 @@ export default class GlasaExtension extends Extension {
     let left_center_x = halfwidth - eye_radius;
     let right_center_x = halfwidth + eye_radius;
 
-    mouse_x -= area_x + halfwidth;
     mouse_x_l -= area_x + left_center_x;
     mouse_x_r -= area_x + right_center_x;
     mouse_y -= area_y + center_y;
@@ -140,10 +141,12 @@ export default class GlasaExtension extends Extension {
     let maxMouseDist_r = Math.sqrt(maxMouseDist_x_r * maxMouseDist_x_r +
       maxMouseDist_y * maxMouseDist_y);
 
-    let factor_left = Math.sqrt(mouse_x_l * mouse_x_l + mouse_y * mouse_y) /
-      (RELIEF_FACTOR * eye_radius);
-    let factor_right = Math.sqrt(mouse_x_r * mouse_x_r + mouse_y * mouse_y) /
-      (RELIEF_FACTOR * eye_radius);
+    let mouse_distance_l = Math.sqrt(mouse_x_l * mouse_x_l + mouse_y * mouse_y);
+    let mouse_distance_r = Math.sqrt(mouse_x_r * mouse_x_r + mouse_y * mouse_y);
+    let factor_left = mouse_distance_l / ((RELIEF_FACTOR + VARIABLE_RELIEF *
+      Math.pow(mouse_distance_l/maxMouseDist_l, CROSS_EYE_SLOPE)) * eye_radius);
+    let factor_right = mouse_distance_r / ((RELIEF_FACTOR + VARIABLE_RELIEF *
+      Math.pow(mouse_distance_r/maxMouseDist_r, CROSS_EYE_SLOPE)) * eye_radius);
     if (factor_left > RELIEF_FACTOR_BOUND) factor_left = RELIEF_FACTOR_BOUND;
     if (factor_right > RELIEF_FACTOR_BOUND) factor_right = RELIEF_FACTOR_BOUND;
     let iris_move_left = eye_radius * IRIS_MOVE * factor_left;
