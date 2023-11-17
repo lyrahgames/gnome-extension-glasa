@@ -105,7 +105,7 @@ export default class GlasaExtension extends Extension {
     let mouse_x_r = mouse_x;
 
     const EYE_LINE_WIDTH = 1.5;
-    const RELIEF_FACTOR = 30;
+    const RELIEF_FACTOR = 2;
     const RELIEF_FACTOR_BOUND = 0.7;
     const IRIS_MOVE = 0.66;
     const IRIS_SIZE = 0.5;
