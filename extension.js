@@ -96,13 +96,11 @@ export default class GlasaExtension extends Extension {
       Gio.DBusCallFlags.NONE, -1, null);
   }
 
-  _draw_eyes() {
+  _draw_eye(position) {
     let halfsize = this._icon.height / 2;
     let halfwidth = this._icon.width / 2;
     let [area_x, area_y] = this._icon.get_transformed_position();
     let [mouse_x, mouse_y, mask] = global.get_pointer();
-    let mouse_x_l = mouse_x;
-    let mouse_x_r = mouse_x;
     let rect = global.display.get_monitor_geometry(global.display.get_primary_monitor());
     let geo_width = rect.width;
     let geo_height = rect.height;
@@ -121,36 +119,23 @@ export default class GlasaExtension extends Extension {
     eye_radius -= EYE_LINE_WIDTH / 2;
     eyebrow_radius -= EYE_LINE_WIDTH / 2;
     let center_y = halfsize * (EYEBROW_SCALE + 1) / 2;
-    // let left_center_x = 2 * halfsize - eye_radius;
-    // let right_center_x = 2 * halfsize + eye_radius;
-    let left_center_x = halfwidth - eye_radius;
-    let right_center_x = halfwidth + eye_radius;
+    let center_x = halfwidth + position * eye_radius;
 
-    mouse_x_l -= area_x + left_center_x;
-    mouse_x_r -= area_x + right_center_x;
+    mouse_x -= area_x + center_x;
     mouse_y -= area_y + center_y;
 
     let maxMouseDist_y = geo_height - (area_y + center_y);
-    let maxMouseDist_x_l = area_y + left_center_x  > geo_width/2 ?
-      area_x + left_center_x  : geo_width-(area_x + left_center_x);
-    let maxMouseDist_x_r = area_y + right_center_x > geo_width/2 ?
-      area_x + right_center_x : geo_width-(area_x + right_center_x);
+    let maxMouseDist_x = area_x + center_x  > geo_width/2 ?
+      area_x + center_x  : geo_width-(area_x + center_x);
 
-    let maxMouseDist_l = Math.sqrt(maxMouseDist_x_l * maxMouseDist_x_l +
-      maxMouseDist_y * maxMouseDist_y);
-    let maxMouseDist_r = Math.sqrt(maxMouseDist_x_r * maxMouseDist_x_r +
+    let maxMouseDist = Math.sqrt(maxMouseDist_x * maxMouseDist_x +
       maxMouseDist_y * maxMouseDist_y);
 
-    let mouse_distance_l = Math.sqrt(mouse_x_l * mouse_x_l + mouse_y * mouse_y);
-    let mouse_distance_r = Math.sqrt(mouse_x_r * mouse_x_r + mouse_y * mouse_y);
-    let factor_left = mouse_distance_l / ((RELIEF_FACTOR + VARIABLE_RELIEF *
-      Math.pow(mouse_distance_l/maxMouseDist_l, CROSS_EYE_SLOPE)) * eye_radius);
-    let factor_right = mouse_distance_r / ((RELIEF_FACTOR + VARIABLE_RELIEF *
-      Math.pow(mouse_distance_r/maxMouseDist_r, CROSS_EYE_SLOPE)) * eye_radius);
-    if (factor_left > RELIEF_FACTOR_BOUND) factor_left = RELIEF_FACTOR_BOUND;
-    if (factor_right > RELIEF_FACTOR_BOUND) factor_right = RELIEF_FACTOR_BOUND;
-    let iris_move_left = eye_radius * IRIS_MOVE * factor_left;
-    let iris_move_right = eye_radius * IRIS_MOVE * factor_right;
+    let mouse_distance = Math.sqrt(mouse_x * mouse_x + mouse_y * mouse_y);
+    let factor = mouse_distance / ((RELIEF_FACTOR + VARIABLE_RELIEF *
+      Math.pow(mouse_distance/maxMouseDist, CROSS_EYE_SLOPE)) * eye_radius);
+    if (factor > RELIEF_FACTOR_BOUND) factor = RELIEF_FACTOR_BOUND;
+    let iris_move = eye_radius * IRIS_MOVE * factor;
 
     // Get and set up the Cairo context.
     let cr = this._icon.get_context();
@@ -160,35 +145,27 @@ export default class GlasaExtension extends Extension {
     cr.setLineWidth(EYE_LINE_WIDTH);
     cr.save();
 
-    // Draw the left eye.
-    cr.translate(left_center_x, center_y);
+    // Draw the eye.
+    cr.translate(center_x, center_y);
     cr.arc(0, 0, eye_radius, 0, 2 * Math.PI);
     cr.stroke();
-    // Draw the left eyebrow.
-    cr.arc(0, 0, eyebrow_radius, 5 * Math.PI / 4, 6.5 * Math.PI / 4);
+    // Draw the eyebrow.
+    let offset = position > 0 ? 0.5 : 0.0;
+    cr.arc(0, 0, eyebrow_radius, (5 + offset) * Math.PI / 4,
+      (6.5 + offset) * Math.PI / 4);
     cr.stroke();
-    // Draw the left iris/pupil.
-    cr.rotate(Math.PI / 2 - Math.atan2(mouse_x_l, mouse_y));
-    cr.translate(iris_move_left, 0);
-    cr.scale(Math.cos(factor_left), 1);
+    // Draw the iris/pupil.
+    cr.rotate(Math.PI / 2 - Math.atan2(mouse_x, mouse_y));
+    cr.translate(iris_move, 0);
+    cr.scale(Math.cos(factor), 1);
     cr.arc(0, 0, eye_radius * IRIS_SIZE, 0, 2 * Math.PI);
     cr.fill();
     cr.restore();
+  }
 
-    // Draw the right eye;
-    cr.translate(right_center_x, center_y);
-    cr.arc(0, 0, eye_radius, 0, 2 * Math.PI);
-    cr.stroke();
-    // Draw the right eyebrow.
-    cr.arc(0, 0, eyebrow_radius, 5.5 * Math.PI / 4, 7 * Math.PI / 4);
-    cr.stroke();
-    // Draw the right iris/pupil.
-    cr.rotate(Math.PI / 2 - Math.atan2(mouse_x_r, mouse_y));
-    cr.translate(iris_move_right, 0);
-    cr.scale(Math.cos(factor_right), 1);
-    cr.arc(0, 0, eye_radius * IRIS_SIZE, 0, 2 * Math.PI);
-    cr.fill();
-    cr.restore();
+  _draw_eyes() {
+    this._draw_eye(-1); // Draw left eye
+    this._draw_eye( 1); // Draw right eye
   }
 
   disable() {
