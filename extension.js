@@ -103,6 +103,9 @@ export default class GlasaExtension extends Extension {
     let [mouse_x, mouse_y, mask] = global.get_pointer();
     let mouse_x_l = mouse_x;
     let mouse_x_r = mouse_x;
+    let rect = global.display.get_monitor_geometry(global.display.get_primary_monitor());
+    let geo_width = rect.width;
+    let geo_height = rect.height;
 
     const EYE_LINE_WIDTH = 1.5;
     const RELIEF_FACTOR = 2;
@@ -125,6 +128,17 @@ export default class GlasaExtension extends Extension {
     mouse_x_l -= area_x + left_center_x;
     mouse_x_r -= area_x + right_center_x;
     mouse_y -= area_y + center_y;
+
+    let maxMouseDist_y = geo_height - (area_y + center_y);
+    let maxMouseDist_x_l = area_y + left_center_x  > geo_width/2 ?
+      area_x + left_center_x  : geo_width-(area_x + left_center_x);
+    let maxMouseDist_x_r = area_y + right_center_x > geo_width/2 ?
+      area_x + right_center_x : geo_width-(area_x + right_center_x);
+
+    let maxMouseDist_l = Math.sqrt(maxMouseDist_x_l * maxMouseDist_x_l +
+      maxMouseDist_y * maxMouseDist_y);
+    let maxMouseDist_r = Math.sqrt(maxMouseDist_x_r * maxMouseDist_x_r +
+      maxMouseDist_y * maxMouseDist_y);
 
     let factor_left = Math.sqrt(mouse_x_l * mouse_x_l + mouse_y * mouse_y) /
       (RELIEF_FACTOR * eye_radius);
