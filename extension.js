@@ -191,8 +191,3 @@ export default class GlasaExtension extends Extension {
     this._settings = null;
   }
 }
-
-function init() {
-  // log(`initializing ${this.metadata.name}`);
-  return new GlasaExtension();
-}
