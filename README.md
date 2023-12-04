@@ -73,3 +73,4 @@ The following command will create a compressed ZIP file for distribution on GNOM
 - [GJS Guide](https://gjs.guide/)
 - [Port Extensions to GNOME Shell 40](https://gjs.guide/extensions/upgrading/gnome-shell-40.html)
 - [Port Extensions to GNOME Shell 42](https://gjs.guide/extensions/upgrading/gnome-shell-42.html#metadata-json)
+- [Port Extension to GNOME Shell 45](https://gjs.guide/extensions/upgrading/gnome-shell-45.html#esm)
