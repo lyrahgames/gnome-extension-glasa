@@ -15,6 +15,7 @@ export default class GlasaExtension extends Extension {
   constructor(metadata) {
     super(metadata);
     this._indicator = null;
+    this._blinkCounter = 0;
   }
 
   enable() {
@@ -113,6 +114,8 @@ export default class GlasaExtension extends Extension {
     const EYEBROW_SCALE = 1.4;
     const VARIABLE_RELIEF = 15;
     const CROSS_EYE_SLOPE = 0.4;
+    const BLINK_DURATION = 10; // Unit: frames
+    const MAX_BLINK_SEPARATION = 500; // Unit: frames
 
     let eye_radius = 2 * halfsize / (1 + EYEBROW_SCALE);
     let eyebrow_radius = EYEBROW_SCALE * eye_radius;
@@ -145,12 +148,30 @@ export default class GlasaExtension extends Extension {
     cr.setLineWidth(EYE_LINE_WIDTH);
     cr.save();
 
-    // Draw the eye.
+    // Draw the eye outline.
     cr.translate(center_x, center_y);
     cr.arc(0, 0, eye_radius, 0, 2 * Math.PI);
     cr.stroke();
-    // Draw the eyebrow.
+    // Draw eyelid + brow
     let offset = position > 0 ? 0.5 : 0.0;
+    let timer = this._blinkCounter;
+    if (timer >= 0) {
+      let offset = position > 0 ? 1.5 : -1.0;
+      if (timer < 1 || timer > BLINK_DURATION-1) {
+        cr.arc(0, 0, eye_radius, 1.2 * Math.PI, 1.8 * Math.PI);
+        cr.closePath();
+      } else if (timer < 2 || timer > BLINK_DURATION-2) {
+        cr.arc(0, 0, eye_radius, 1 * Math.PI, 0);
+        cr.closePath();
+      } else if (timer < 3 || timer > BLINK_DURATION-3) {
+        cr.arc(0, 0, eye_radius, 0.8 * Math.PI, 0.2 * Math.PI);
+        cr.closePath();
+      } else {
+        cr.arc(0, 0, eye_radius, 0, 2 * Math.PI);
+      }
+      cr.fill();
+    }
+    // Draw the eyebrow.
     cr.arc(0, 0, eyebrow_radius, (5 + offset) * Math.PI / 4,
       (6.5 + offset) * Math.PI / 4);
     cr.stroke();
@@ -161,6 +182,11 @@ export default class GlasaExtension extends Extension {
     cr.arc(0, 0, eye_radius * IRIS_SIZE, 0, 2 * Math.PI);
     cr.fill();
     cr.restore();
+    if (this._blinkCounter > BLINK_DURATION) {
+      this._blinkCounter = Math.floor(Math.random() * -MAX_BLINK_SEPARATION);
+    } else {
+      this._blinkCounter += 1;
+    }
   }
 
   _draw_eyes() {
