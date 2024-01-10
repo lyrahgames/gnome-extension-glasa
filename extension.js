@@ -15,6 +15,7 @@ export default class GlasaExtension extends Extension {
   constructor(metadata) {
     super(metadata);
     this._indicator = null;
+    this._blinkCounter = 0;
   }
 
   enable() {
@@ -96,34 +97,46 @@ export default class GlasaExtension extends Extension {
       Gio.DBusCallFlags.NONE, -1, null);
   }
 
-  _draw_eyes() {
+  _draw_eye(position) {
     let halfsize = this._icon.height / 2;
     let halfwidth = this._icon.width / 2;
     let [area_x, area_y] = this._icon.get_transformed_position();
     let [mouse_x, mouse_y, mask] = global.get_pointer();
+    let rect = global.display.get_monitor_geometry(global.display.get_primary_monitor());
+    let geo_width = rect.width;
+    let geo_height = rect.height;
 
     const EYE_LINE_WIDTH = 1.5;
-    const RELIEF_FACTOR = 30;
+    const RELIEF_FACTOR = 2;
     const RELIEF_FACTOR_BOUND = 0.7;
     const IRIS_MOVE = 0.66;
     const IRIS_SIZE = 0.5;
     const EYEBROW_SCALE = 1.4;
+    const VARIABLE_RELIEF = 15;
+    const CROSS_EYE_SLOPE = 0.4;
+    const BLINK_DURATION = 10; // Unit: frames
+    const MAX_BLINK_SEPARATION = 500; // Unit: frames
 
     let eye_radius = 2 * halfsize / (1 + EYEBROW_SCALE);
     let eyebrow_radius = EYEBROW_SCALE * eye_radius;
     eye_radius -= EYE_LINE_WIDTH / 2;
     eyebrow_radius -= EYE_LINE_WIDTH / 2;
     let center_y = halfsize * (EYEBROW_SCALE + 1) / 2;
-    // let left_center_x = 2 * halfsize - eye_radius;
-    // let right_center_x = 2 * halfsize + eye_radius;
-    let left_center_x = halfwidth - eye_radius;
-    let right_center_x = halfwidth + eye_radius;
+    let center_x = halfwidth + position * eye_radius;
 
-    mouse_x -= area_x + 2 * halfsize;
+    mouse_x -= area_x + center_x;
     mouse_y -= area_y + center_y;
 
-    let factor = Math.sqrt(mouse_x * mouse_x + mouse_y * mouse_y) /
-      (RELIEF_FACTOR * eye_radius);
+    let maxMouseDist_y = geo_height - (area_y + center_y);
+    let maxMouseDist_x = area_x + center_x  > geo_width/2 ?
+      area_x + center_x  : geo_width-(area_x + center_x);
+
+    let maxMouseDist = Math.sqrt(maxMouseDist_x * maxMouseDist_x +
+      maxMouseDist_y * maxMouseDist_y);
+
+    let mouse_distance = Math.sqrt(mouse_x * mouse_x + mouse_y * mouse_y);
+    let factor = mouse_distance / ((RELIEF_FACTOR + VARIABLE_RELIEF *
+      Math.pow(mouse_distance/maxMouseDist, CROSS_EYE_SLOPE)) * eye_radius);
     if (factor > RELIEF_FACTOR_BOUND) factor = RELIEF_FACTOR_BOUND;
     let iris_move = eye_radius * IRIS_MOVE * factor;
 
@@ -135,35 +148,50 @@ export default class GlasaExtension extends Extension {
     cr.setLineWidth(EYE_LINE_WIDTH);
     cr.save();
 
-    // Draw the left eye.
-    cr.translate(left_center_x, center_y);
+    // Draw the eye outline.
+    cr.translate(center_x, center_y);
     cr.arc(0, 0, eye_radius, 0, 2 * Math.PI);
     cr.stroke();
-    // Draw the left eyebrow.
-    cr.arc(0, 0, eyebrow_radius, 5 * Math.PI / 4, 6.5 * Math.PI / 4);
+    // Draw eyelid + brow
+    let offset = position > 0 ? 0.5 : 0.0;
+    let timer = this._blinkCounter;
+    if (timer >= 0) {
+      let offset = position > 0 ? 1.5 : -1.0;
+      if (timer < 1 || timer > BLINK_DURATION-1) {
+        cr.arc(0, 0, eye_radius, 1.2 * Math.PI, 1.8 * Math.PI);
+        cr.closePath();
+      } else if (timer < 2 || timer > BLINK_DURATION-2) {
+        cr.arc(0, 0, eye_radius, 1 * Math.PI, 0);
+        cr.closePath();
+      } else if (timer < 3 || timer > BLINK_DURATION-3) {
+        cr.arc(0, 0, eye_radius, 0.8 * Math.PI, 0.2 * Math.PI);
+        cr.closePath();
+      } else {
+        cr.arc(0, 0, eye_radius, 0, 2 * Math.PI);
+      }
+      cr.fill();
+    }
+    // Draw the eyebrow.
+    cr.arc(0, 0, eyebrow_radius, (5 + offset) * Math.PI / 4,
+      (6.5 + offset) * Math.PI / 4);
     cr.stroke();
-    // Draw the left iris/pupil.
+    // Draw the iris/pupil.
     cr.rotate(Math.PI / 2 - Math.atan2(mouse_x, mouse_y));
     cr.translate(iris_move, 0);
     cr.scale(Math.cos(factor), 1);
     cr.arc(0, 0, eye_radius * IRIS_SIZE, 0, 2 * Math.PI);
     cr.fill();
     cr.restore();
+    if (this._blinkCounter > BLINK_DURATION) {
+      this._blinkCounter = Math.floor(Math.random() * -MAX_BLINK_SEPARATION);
+    } else {
+      this._blinkCounter += 1;
+    }
+  }
 
-    // Draw the right eye;
-    cr.translate(right_center_x, center_y);
-    cr.arc(0, 0, eye_radius, 0, 2 * Math.PI);
-    cr.stroke();
-    // Draw the right eyebrow.
-    cr.arc(0, 0, eyebrow_radius, 5.5 * Math.PI / 4, 7 * Math.PI / 4);
-    cr.stroke();
-    // Draw the right iris/pupil.
-    cr.rotate(Math.PI / 2 - Math.atan2(mouse_x, mouse_y));
-    cr.translate(iris_move, 0);
-    cr.scale(Math.cos(factor), 1);
-    cr.arc(0, 0, eye_radius * IRIS_SIZE, 0, 2 * Math.PI);
-    cr.fill();
-    cr.restore();
+  _draw_eyes() {
+    this._draw_eye(-1); // Draw left eye
+    this._draw_eye( 1); // Draw right eye
   }
 
   disable() {
