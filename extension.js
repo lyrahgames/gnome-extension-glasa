@@ -23,7 +23,8 @@ export default class GlasaExtension extends Extension {
 
     // Retrieve the extension's settings and make changing them update the
     // extension indicator.
-    this._settings = Extension.lookupByUUID(this.uuid).getSettings();
+    // this._settings = Extension.lookupByUUID(this.uuid).getSettings();
+    this._settings = this.getSettings();
     this._settings_handler = null;
     this._settings_handler = this._settings.connect('changed', () => {
       this._position_changed();
@@ -31,11 +32,11 @@ export default class GlasaExtension extends Extension {
     });
 
     // Provide the drawing function for the indicator icon.
-    this._icon = new St.DrawingArea({ width: 3 * ICON_SIZE, height: ICON_SIZE });
+    this._icon =
+        new St.DrawingArea({width : 3 * ICON_SIZE, height : ICON_SIZE});
     this._repaint_handler = null;
-    this._repaint_handler = this._icon.connect('repaint', () => {
-      this._draw_eyes();
-    });
+    this._repaint_handler =
+        this._icon.connect('repaint', () => { this._draw_eyes(); });
 
     // Repaint the eyes after a short time period by using the main loop.
     this._update_handler = null;
@@ -49,7 +50,7 @@ export default class GlasaExtension extends Extension {
     this._indicator = new PanelMenu.Button(0.0, indicatorName, false);
 
     // The icon should be correctly styled and aligned.
-    let hbox = new St.BoxLayout({ style_class: 'system-status-icon' });
+    let hbox = new St.BoxLayout({style_class : 'system-status-icon'});
     hbox.add_child(this._icon);
     this._indicator.add_child(hbox);
     this._icon.queue_repaint();
@@ -65,9 +66,9 @@ export default class GlasaExtension extends Extension {
   _position_changed() {
     this._indicator.get_parent().remove_actor(this._indicator);
     let boxes = {
-      0: Main.panel._leftBox,
-      1: Main.panel._centerBox,
-      2: Main.panel._rightBox,
+      0 : Main.panel._leftBox,
+      1 : Main.panel._centerBox,
+      2 : Main.panel._rightBox,
     };
     let p = this._settings.get_int('panel-box');
     let q = this._settings.get_int('panel-box-location');
@@ -76,25 +77,21 @@ export default class GlasaExtension extends Extension {
 
   _popupmenu_created() {
     this._indicator.menu.removeAll();
-    this._indicator.menu.addAction(
-      this._settings.get_string('panel-message'),
-      () => {}
-    );
+    this._indicator.menu.addAction(this._settings.get_string('panel-message'),
+                                   () => {});
     this._indicator.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-    this._indicator.menu.addAction(
-      'Settings',
-      () => { this._open_preferences() }
-    );
+    this._indicator.menu.addAction('Settings',
+                                   () => {this._open_preferences()});
   }
 
   _open_preferences() {
     // I have copied this command from another extension
     // (Arch-Linux Update Indicator)
-    Gio.DBus.session.call(
-      'org.gnome.Shell.Extensions', '/org/gnome/Shell/Extensions',
-      'org.gnome.Shell.Extensions', 'OpenExtensionPrefs',
-      new GLib.Variant('(ssa{sv})', [this.uuid, '', {}]), null,
-      Gio.DBusCallFlags.NONE, -1, null);
+    Gio.DBus.session.call('org.gnome.Shell.Extensions',
+                          '/org/gnome/Shell/Extensions',
+                          'org.gnome.Shell.Extensions', 'OpenExtensionPrefs',
+                          new GLib.Variant('(ssa{sv})', [ this.uuid, '', {} ]),
+                          null, Gio.DBusCallFlags.NONE, -1, null);
   }
 
   _draw_eye(position) {
@@ -102,7 +99,8 @@ export default class GlasaExtension extends Extension {
     let halfwidth = this._icon.width / 2;
     let [area_x, area_y] = this._icon.get_transformed_position();
     let [mouse_x, mouse_y, mask] = global.get_pointer();
-    let rect = global.display.get_monitor_geometry(global.display.get_primary_monitor());
+    let rect = global.display.get_monitor_geometry(
+        global.display.get_primary_monitor());
     let geo_width = rect.width;
     let geo_height = rect.height;
 
@@ -114,7 +112,7 @@ export default class GlasaExtension extends Extension {
     const EYEBROW_SCALE = 1.4;
     const VARIABLE_RELIEF = 15;
     const CROSS_EYE_SLOPE = 0.4;
-    const BLINK_DURATION = 10; // Unit: frames
+    const BLINK_DURATION = 10;        // Unit: frames
     const MAX_BLINK_SEPARATION = 500; // Unit: frames
 
     let eye_radius = 2 * halfsize / (1 + EYEBROW_SCALE);
@@ -128,16 +126,21 @@ export default class GlasaExtension extends Extension {
     mouse_y -= area_y + center_y;
 
     let maxMouseDist_y = geo_height - (area_y + center_y);
-    let maxMouseDist_x = area_x + center_x  > geo_width/2 ?
-      area_x + center_x  : geo_width-(area_x + center_x);
+    let maxMouseDist_x = area_x + center_x > geo_width / 2
+                             ? area_x + center_x
+                             : geo_width - (area_x + center_x);
 
     let maxMouseDist = Math.sqrt(maxMouseDist_x * maxMouseDist_x +
-      maxMouseDist_y * maxMouseDist_y);
+                                 maxMouseDist_y * maxMouseDist_y);
 
     let mouse_distance = Math.sqrt(mouse_x * mouse_x + mouse_y * mouse_y);
-    let factor = mouse_distance / ((RELIEF_FACTOR + VARIABLE_RELIEF *
-      Math.pow(mouse_distance/maxMouseDist, CROSS_EYE_SLOPE)) * eye_radius);
-    if (factor > RELIEF_FACTOR_BOUND) factor = RELIEF_FACTOR_BOUND;
+    let factor = mouse_distance /
+                 ((RELIEF_FACTOR +
+                   VARIABLE_RELIEF * Math.pow(mouse_distance / maxMouseDist,
+                                              CROSS_EYE_SLOPE)) *
+                  eye_radius);
+    if (factor > RELIEF_FACTOR_BOUND)
+      factor = RELIEF_FACTOR_BOUND;
     let iris_move = eye_radius * IRIS_MOVE * factor;
 
     // Get and set up the Cairo context.
@@ -157,13 +160,13 @@ export default class GlasaExtension extends Extension {
     let timer = this._blinkCounter;
     if (timer >= 0) {
       let offset = position > 0 ? 1.5 : -1.0;
-      if (timer < 1 || timer > BLINK_DURATION-1) {
+      if (timer < 1 || timer > BLINK_DURATION - 1) {
         cr.arc(0, 0, eye_radius, 1.2 * Math.PI, 1.8 * Math.PI);
         cr.closePath();
-      } else if (timer < 2 || timer > BLINK_DURATION-2) {
+      } else if (timer < 2 || timer > BLINK_DURATION - 2) {
         cr.arc(0, 0, eye_radius, 1 * Math.PI, 0);
         cr.closePath();
-      } else if (timer < 3 || timer > BLINK_DURATION-3) {
+      } else if (timer < 3 || timer > BLINK_DURATION - 3) {
         cr.arc(0, 0, eye_radius, 0.8 * Math.PI, 0.2 * Math.PI);
         cr.closePath();
       } else {
@@ -173,7 +176,7 @@ export default class GlasaExtension extends Extension {
     }
     // Draw the eyebrow.
     cr.arc(0, 0, eyebrow_radius, (5 + offset) * Math.PI / 4,
-      (6.5 + offset) * Math.PI / 4);
+           (6.5 + offset) * Math.PI / 4);
     cr.stroke();
     // Draw the iris/pupil.
     cr.rotate(Math.PI / 2 - Math.atan2(mouse_x, mouse_y));
@@ -191,7 +194,7 @@ export default class GlasaExtension extends Extension {
 
   _draw_eyes() {
     this._draw_eye(-1); // Draw left eye
-    this._draw_eye( 1); // Draw right eye
+    this._draw_eye(1);  // Draw right eye
   }
 
   disable() {
