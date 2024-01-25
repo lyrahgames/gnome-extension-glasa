@@ -33,7 +33,7 @@ class GlasaBlinkAnimation {
   //
   update() {
     const MIN_BLINK_DURATION = 7;
-    const MAX_BLINK_DURATION = 16;
+    const MAX_BLINK_DURATION = 14;
     const MIN_BLINK_PERIOD = MAX_BLINK_DURATION;
     const MAX_BLINK_PERIOD = 200;
     //
@@ -239,8 +239,11 @@ export default class GlasaExtension extends Extension {
 
     // Draw animated comic-style eyes.
     //
-    let lid_closing = this._animation.value();
-    this._animation.update();
+    let lid_closing = 0.0;
+    if (this._settings.get_boolean('render-blinking')) {
+      lid_closing = this._animation.value();
+      this._animation.update();
+    }
     this._draw_comic_eyes(cr, width, height, mouse_x, mouse_y, lid_closing);
   }
 
@@ -255,7 +258,8 @@ export default class GlasaExtension extends Extension {
       look_at_x, look_at_y, // Look-At Position on Screen
       lid_closing // Parameter between 0 (for eye open) and 1 (for eye closed)
   ) {
-    const EYE_DEPTH_SCALE = 3;
+    // const EYE_DEPTH_SCALE = 3;
+    const EYE_DEPTH_SCALE = this._settings.get_double('render-depth');
     const BROW_RADIUS_SCALE = 1.4;
     const IRIS_RADIUS_SCALE = 0.5;
 

@@ -16,5 +16,15 @@
       <summary>Indicator Menu Message</summary>
       <description>Message visible when clicking on the eyes</description>
     </key>
+    <key name="render-depth" type="d">
+      <default>3.0</default>
+      <summary>Virtual Depth of Eyeballs</summary>
+      <description>Small values will allow for crossed eyes</description>
+    </key>
+    <key name="render-blinking" type="b">
+      <default>true</default>
+      <summary>Toggle for Eye Blinking</summary>
+      <description>Toggle to switch on or off eye blinking</description>
+    </key>
   </schema>
 </schemalist>

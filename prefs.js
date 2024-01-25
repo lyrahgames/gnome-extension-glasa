@@ -1,20 +1,20 @@
 'use strict';
 
+import Gio from 'gi://Gio';
 import Adw from 'gi://Adw';
 import Gtk from 'gi://Gtk';
 
 import {
-  ExtensionPreferences
+  ExtensionPreferences,
+  gettext as _
 } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 export default class GlasaExtensionPreferences extends ExtensionPreferences {
   fillPreferencesWindow(window) {
-    // const settings =
-    // ExtensionPreferences.lookupByUUID(this.uuid).getSettings();
     const settings = this.getSettings();
 
     window.set_size_request(600, 300);
-    window.set_default_size(800, 375);
+    window.set_default_size(800, 450);
 
     const page = new Adw.PreferencesPage();
     window.add(page);
@@ -100,5 +100,44 @@ export default class GlasaExtensionPreferences extends ExtensionPreferences {
         () => { settings.set_string('panel-message', panel_message.text); });
     // Add the box to the row
     messageRow.add_suffix(panel_message_box);
+
+    //
+    //
+    const render_group = new Adw.PreferencesGroup({title : 'Appearance'});
+    page.add(render_group);
+
+    //
+    //
+    const render_depth_row = new Adw.SpinRow({
+      title : 'Virtual Eye Depth',
+      subtitle : 'Smaller values enhance crossed eyes',
+    });
+    render_depth_row.set_adjustment(new Gtk.Adjustment({
+      lower : 1,
+      upper : 20,
+      value : 3,
+      step_increment : 1,
+      page_increment : 5,
+      page_size : 0,
+    }));
+    settings.bind('render-depth', render_depth_row, 'value',
+                  Gio.SettingsBindFlags.DEFAULT);
+    // render_depth_row.connect('value-changed', () => {
+    //   settings.set_double('render-depth',
+    //                       render_depth_row.get_adjustment().value);
+    // });
+    render_group.add(render_depth_row);
+
+    //
+    //
+    const render_blinking_row = new Adw.SwitchRow({
+      title : _('Toggle Eye Blinking'),
+      subtitle : _('Switch on or off the eye blinking animation'),
+      active : settings.get_boolean('render-blinking'),
+    });
+    // render_blinking_row.active = settings.get_boolean('render-blinking');
+    settings.bind('render-blinking', render_blinking_row, 'active',
+                  Gio.SettingsBindFlags.DEFAULT);
+    render_group.add(render_blinking_row);
   }
 }
