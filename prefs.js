@@ -14,8 +14,7 @@ export default class GlasaExtensionPreferences extends ExtensionPreferences {
     window.set_size_request(600, 300);
     window.set_default_size(800, 460);
 
-    this._settings = this.getSettings();
-    window._settings = this.getSettings();
+    const settings = this.getSettings();
 
     const page = new Adw.PreferencesPage({
       title : _('General'),
@@ -23,40 +22,38 @@ export default class GlasaExtensionPreferences extends ExtensionPreferences {
     });
     window.add(page);
 
-    page.add(this._new_appearance_group());
-    page.add(this._new_popup_menu_group());
+    page.add(this._new_appearance_group(settings));
+    page.add(this._new_popup_menu_group(settings));
   }
 
-  _new_appearance_group() {
+  _new_appearance_group(settings) {
     const group = new Adw.PreferencesGroup({
       title : _('Appearance'),
       description :
           _('Configure the appearance and rendering of the indicator\'s icon'),
     });
 
-    group.add(this._new_position_row());
-    group.add(this._new_depth_row());
-    group.add(this._new_blinking_row());
+    group.add(this._new_position_row(settings));
+    group.add(this._new_depth_row(settings));
+    group.add(this._new_blinking_row(settings));
 
     return group;
   }
 
-  _new_popup_menu_group() {
+  _new_popup_menu_group(settings) {
     const group = new Adw.PreferencesGroup({
       title : _('Popup Menu'),
       description : _('Configure the popup menu'),
     });
 
-    group.add(this._new_message_row());
+    group.add(this._new_message_row(settings));
 
     return group;
   }
 
   // Row for Positioning in Top Panel
   //
-  _new_position_row() {
-    let settings = this._settings;
-
+  _new_position_row(settings) {
     const row = new Adw.ActionRow({
       title : _('Top Panel Location'),
       subtitle : _('Alignment and Order'),
@@ -130,9 +127,7 @@ export default class GlasaExtensionPreferences extends ExtensionPreferences {
 
   // Row for Custom Message in the Popup Menu
   //
-  _new_message_row() {
-    let settings = this._settings;
-
+  _new_message_row(settings) {
     const row = new Adw.EntryRow({
       title : _('Popup Menu Message'),
       show_apply_button : true,
@@ -157,9 +152,7 @@ export default class GlasaExtensionPreferences extends ExtensionPreferences {
 
   // Row for Eye Depth
   //
-  _new_depth_row() {
-    let settings = this._settings;
-
+  _new_depth_row(settings) {
     const row = new Adw.SpinRow({
       title : _('Virtual Eye Depth'),
       subtitle : _('Smaller values enhance the cross-eye effect'),
@@ -181,9 +174,7 @@ export default class GlasaExtensionPreferences extends ExtensionPreferences {
 
   // Row for Eye Blinking
   //
-  _new_blinking_row() {
-    let settings = this._settings;
-
+  _new_blinking_row(settings) {
     const row = new Adw.SwitchRow({
       title : _('Blinking'),
       subtitle : _('Switch on or off the eye blinking animation'),
