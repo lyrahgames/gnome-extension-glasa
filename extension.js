@@ -129,8 +129,8 @@ export default class GlasaExtension extends Extension {
     this._repaint_handler =
         this._icon.connect('repaint', () => { this._render(); });
 
-    // Continuously repaint the icon after a fixed frame time
-    // by using a basic timer in the main loop.
+    // Continuously repaint the icon
+    // after a fixed frame time by using a basic timer.
     //
     this._update_handler = null;
     this._update_handler =
