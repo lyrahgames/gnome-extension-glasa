@@ -2,7 +2,7 @@
     GNOME Extension: Glasa
 </h1>
 <p align="center">
-    This extension puts an icon in the panel consisting of two comic-like eyes following the cursor.
+    This extension puts an icon in the top panel consisting of two comic-like eyes following the cursor.
     It is meant as a present and not to be confused with a fully robust GNOME extension.
     Have fun with it.
 </p>
@@ -23,7 +23,7 @@
 
 ## Getting Started
 
-It is highly recommended to get this extension by using the [GNOME Extensions' Website](https://extensions.gnome.org/) and searching for `glasa`.
+It is recommended to get this extension by using the [GNOME Extensions' Website](https://extensions.gnome.org/) and searching for `glasa`.
 Otherwise you can also use [this link](https://extensions.gnome.org/extension/4780/glasa/).
 
 ## Manual Installation and Development Usage
@@ -37,14 +37,14 @@ Change into the directory and run the makefile.
     cd gnome-extension-glasa
     make
 
-Press `Alt+F2` and type `r` to restart the Gnome shell if you are running on X11.
-In the case you are running on Wayland log out and in again.
+On X11, press `Alt+F2` and type `r` to restart the GNOME shell.
+On Wayland, log out and in again.
 Afterwards enable the extension.
 
     make enable
 
 You should now be able to see the eyes icon appear in the panel.
-Otherwise, restart the Gnome shell again by pressing `Alt+F2` and typing `r`.
+Otherwise, restart the GNOME shell again by pressing `Alt+F2` and typing `r`.
 
 You can disable the extension as follows.
 
@@ -58,19 +58,24 @@ Show the preferences window for the extension.
 
     make prefs
 
+On Wayland, you can test the extension on a virtual desktop.
+
+    make test
+
 The following command will create a compressed ZIP file for the distribution on GNOME extensions' website.
 
     make pack
 
 ## Notes
 
-- This repository is based on the soure code from [eye by azathoth](https://extensions.gnome.org/extension/213/eye/).
+- This repository started with the soure code from [eye by azathoth](https://extensions.gnome.org/extension/213/eye/).
 - A non-comic and more advanced alternative is given by [Eye and Mouse Extended on GitHub](https://github.com/alexeylovchikov/eye-extended-shell-extension) and [Eye and Mouse Extended on GNOME Extension Hub](https://extensions.gnome.org/extension/3139/eye-extended/).
 
 ## Contact and Contributing
 
 If you have any questions or comments regarding `glasa`, please don't hesitate to reach out at lyrahgames@mailbox.org.
 If you come across any bugs, encounter issues, or miss some neat features, please make use of the GitHub issue tracking page or send a pull request.
+When contributing with a pull request, please have a look at the commented source code and try to follow the formatting and style seen there.
 
 ## Copyright and License
 
