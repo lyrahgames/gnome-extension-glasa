@@ -75,7 +75,9 @@ The following command will create a compressed ZIP file for the distribution on 
 
 If you have any questions or comments regarding `glasa`, please don't hesitate to reach out at lyrahgames@mailbox.org.
 If you come across any bugs, encounter issues, or miss some neat features, please make use of the GitHub issue tracking page or send a pull request.
-When contributing with a pull request, please have a look at the commented source code and try to follow the formatting and style seen there.
+
+When contributing with a pull request, please make yourself familiar with [GJS][gjs] and [GNOME Shell Extensions][gnome-extensions].
+Follow the [GNOME Shell Extensions Review Guidelines][gnome-extensions-review-guidelines] and also have a look at the commented source code to follow the style seen there.
 
 ## Copyright and License
 
@@ -95,7 +97,10 @@ This file is offered as-is, without any warranty.
 
 ## References and Other Resources
 
-- [GJS Guide](https://gjs.guide/)
-- [Port Extensions to GNOME Shell 40](https://gjs.guide/extensions/upgrading/gnome-shell-40.html)
-- [Port Extensions to GNOME Shell 42](https://gjs.guide/extensions/upgrading/gnome-shell-42.html#metadata-json)
-- [Port Extension to GNOME Shell 45](https://gjs.guide/extensions/upgrading/gnome-shell-45.html#esm)
+- [GJS Guide][gjs]
+- [GNOME Shell Extensions][gnome-extensions]
+- [GNOME Shell Extensions Review Guidelines][gnome-extensions-review-guidelines]
+
+[gjs]: https://gjs.guide/ (GJS | A Guide to JavaScript for GNOME)
+[gnome-extensions]: https://gjs.guide/extensions/ (GNOME Shell Extensions)
+[gnome-extensions-review-guidelines]: https://gjs.guide/extensions/review-guidelines/review-guidelines.html (GNOME Shell Extensions Review Guidelines)
