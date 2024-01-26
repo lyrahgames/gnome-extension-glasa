@@ -177,8 +177,7 @@ export default class GlasaExtension extends Extension {
       this._repaint_handler = null;
     }
 
-    this._indicator.destroy();
-
+    this._indicator?.destroy();
     this._indicator = null;
     this._icon = null;
     this._settings = null;
