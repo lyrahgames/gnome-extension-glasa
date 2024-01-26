@@ -5,5 +5,5 @@
   "shell-version": [ "45" ],
   "url": "https://github.com/lyrahgames/gnome-extension-glasa",
   "gettext-domain": "glasa@lyrahgames.github.io",
-  "settings-schema": "org.gnome.shell.extensions.glasa",
+  "settings-schema": "org.gnome.shell.extensions.glasa"
 }
