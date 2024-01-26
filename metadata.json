@@ -1,12 +1,9 @@
 {
-  "description": "This extension puts an icon in the panel consisting of two comic-like eyes following the cursor.",
-  "gettext-domain": "glasa",
   "name": "Glasa",
-  "settings-schema": "org.gnome.shell.extensions.glasa",
-  "shell-version": [
-    "45"
-  ],
-  "url": "https://github.com/lyrahgames/gnome-extension-glasa",
   "uuid": "glasa@lyrahgames.github.io",
-  "version": 13
+  "description": "This extension puts adds an indicator to the top panel whose icon continuously renders two comic-like eyes that follow the mouse cursor.",
+  "shell-version": [ "45" ],
+  "url": "https://github.com/lyrahgames/gnome-extension-glasa",
+  "gettext-domain": "glasa@lyrahgames.github.io",
+  "settings-schema": "org.gnome.shell.extensions.glasa",
 }
