@@ -191,16 +191,23 @@ export default class GlasaExtension extends Extension {
       1 : Main.panel._centerBox,
       2 : Main.panel._rightBox,
     };
-    let p = this._settings.get_int('panel-box');
-    let q = this._settings.get_int('panel-box-location');
+    let p = this._settings.get_int('panel-alignment');
+    let q = this._settings.get_int('panel-priority');
     boxes[p].insert_child_at_index(this._indicator, q);
   }
 
   _popupmenu_created() {
     this._indicator.menu.removeAll();
-    this._indicator.menu.addAction(this._settings.get_string('panel-message'),
-                                   () => {});
-    this._indicator.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+
+    if (this._settings.get_boolean('popup-menu-show-message')) {
+      let popup_menu_message = this._settings.get_string('popup-menu-message');
+      if (popup_menu_message != "") {
+        this._indicator.menu.addAction(popup_menu_message, () => {});
+        this._indicator.menu.addMenuItem(
+            new PopupMenu.PopupSeparatorMenuItem());
+      }
+    }
+
     this._indicator.menu.addAction(_("Preferences"),
                                    () => this.openPreferences());
   }
@@ -240,7 +247,7 @@ export default class GlasaExtension extends Extension {
     // Draw animated comic-style eyes.
     //
     let lid_closing = 0.0;
-    if (this._settings.get_boolean('render-blinking')) {
+    if (this._settings.get_boolean('eye-blinking')) {
       lid_closing = this._animation.value();
       this._animation.update();
     }
@@ -259,7 +266,7 @@ export default class GlasaExtension extends Extension {
       lid_closing // Parameter between 0 (for eye open) and 1 (for eye closed)
   ) {
     // const EYE_DEPTH_SCALE = 3;
-    const EYE_DEPTH_SCALE = this._settings.get_double('render-depth');
+    const EYE_DEPTH_SCALE = this._settings.get_double('eye-depth');
     const BROW_RADIUS_SCALE = 1.4;
     const IRIS_RADIUS_SCALE = 0.5;
 

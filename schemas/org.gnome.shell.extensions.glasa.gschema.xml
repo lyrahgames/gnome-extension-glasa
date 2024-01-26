@@ -1,27 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="glasa">
   <schema id="org.gnome.shell.extensions.glasa" path="/org/gnome/shell/extensions/glasa/">
-    <key name="panel-box" type="i">
+    <key name="panel-alignment" type="i">
       <default>1</default>
-      <summary>Panel Box Location</summary>
-      <description>Top panel box where eyes will be displayed</description>
+      <summary>Top Panel Alignment</summary>
+      <description>Alignment of the indicator itself in the top panel</description>
     </key>
-    <key name="panel-box-location" type="i">
+    <key name="panel-priority" type="i">
       <default>0</default>
-      <summary>Detailed Location in Panel Box</summary>
-      <description>Detailed position inside the top panel box</description>
+      <summary>Priority for Adjusting Order in Top Panel</summary>
+      <description>Priority to adjust the order of indicators in each alignment box of the top panel</description>
     </key>
-    <key name="panel-message" type="s">
+    <key name="popup-menu-message" type="s">
       <default>'I am still with you. Keep on!'</default>
-      <summary>Indicator Menu Message</summary>
-      <description>Message visible when clicking on the eyes</description>
+      <summary>Popup Menu Message</summary>
+      <description>Message seen as entry in the popup menu</description>
     </key>
-    <key name="render-depth" type="d">
+    <key name="popup-menu-show-message" type="b">
+      <default>true</default>
+      <summary>Popup Menu Message Visibility</summary>
+      <description>Toggle whether to show this message as an entry in the popup menu</description>
+    </key>
+    <key name="eye-depth" type="d">
       <default>3.0</default>
       <summary>Virtual Depth of Eyeballs</summary>
       <description>Small values will allow for crossed eyes</description>
     </key>
-    <key name="render-blinking" type="b">
+    <key name="eye-blinking" type="b">
       <default>true</default>
       <summary>Toggle for Eye Blinking</summary>
       <description>Toggle to switch on or off eye blinking</description>

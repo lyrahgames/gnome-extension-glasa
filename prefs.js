@@ -11,37 +11,74 @@ import {
 
 export default class GlasaExtensionPreferences extends ExtensionPreferences {
   fillPreferencesWindow(window) {
-    const settings = this.getSettings();
-
     window.set_size_request(600, 300);
-    window.set_default_size(800, 450);
+    window.set_default_size(800, 460);
 
-    const page = new Adw.PreferencesPage();
+    this._settings = this.getSettings();
+    window._settings = this.getSettings();
+
+    const page = new Adw.PreferencesPage({
+      title : _('General'),
+      icon_name : 'dialog-information-symbolic',
+    });
     window.add(page);
 
-    const group = new Adw.PreferencesGroup({title : 'General'});
-    page.add(group);
+    page.add(this._new_appearance_group());
+    page.add(this._new_popup_menu_group());
+  }
 
-    // Create group of toggle buttons to set the panel box.
-    // Make sure to set the vertical alignment.
-    // So, the buttons will not get stretched vertically.
-    const positionRow = new Adw.ActionRow({
-      title : 'Top Panel Location',
-      subtitle : 'Box and Order',
+  _new_appearance_group() {
+    const group = new Adw.PreferencesGroup({
+      title : _('Appearance'),
+      description :
+          _('Configure the appearance and rendering of the indicator\'s icon'),
     });
-    group.add(positionRow);
 
+    group.add(this._new_position_row());
+    group.add(this._new_depth_row());
+    group.add(this._new_blinking_row());
+
+    return group;
+  }
+
+  _new_popup_menu_group() {
+    const group = new Adw.PreferencesGroup({
+      title : _('Popup Menu'),
+      description : _('Configure the popup menu'),
+    });
+
+    group.add(this._new_message_row());
+
+    return group;
+  }
+
+  // Row for Positioning in Top Panel
+  //
+  _new_position_row() {
+    let settings = this._settings;
+
+    const row = new Adw.ActionRow({
+      title : _('Top Panel Location'),
+      subtitle : _('Alignment and Order'),
+    });
+
+    // Create a group of three buttons to
+    // set the indicator's main alignment in the top panel.
+    // Make sure to set the vertical alignment of buttons.
+    // Otherwise, the buttons will get stretched vertically.
+    //
     const left_button =
-        new Gtk.ToggleButton({label : 'Left', valign : Gtk.Align.CENTER});
+        new Gtk.ToggleButton({label : _('Left'), valign : Gtk.Align.CENTER});
     const center_button =
-        new Gtk.ToggleButton({label : 'Center', valign : Gtk.Align.CENTER});
+        new Gtk.ToggleButton({label : _('Center'), valign : Gtk.Align.CENTER});
     const right_button =
-        new Gtk.ToggleButton({label : 'Right', valign : Gtk.Align.CENTER});
+        new Gtk.ToggleButton({label : _('Right'), valign : Gtk.Align.CENTER});
     center_button.set_group(left_button);
     right_button.set_group(left_button);
 
     // Set the initial state of the toggle button group.
-    const init_panel_box = settings.get_int('panel-box');
+    //
+    const init_panel_box = settings.get_int('panel-alignment');
     if (init_panel_box == 0)
       left_button.set_active(true);
     else if (init_panel_box == 1)
@@ -50,20 +87,24 @@ export default class GlasaExtensionPreferences extends ExtensionPreferences {
       right_button.set_active(true);
 
     // Make toggle buttons update the settings state.
-    left_button.connect('toggled', () => { settings.set_int('panel-box', 0); });
+    //
+    left_button.connect('toggled', //
+                        () => { settings.set_int('panel-alignment', 0); });
     center_button.connect('toggled',
-                          () => { settings.set_int('panel-box', 1); });
+                          () => { settings.set_int('panel-alignment', 1); });
     right_button.connect('toggled',
-                         () => { settings.set_int('panel-box', 2); });
+                         () => { settings.set_int('panel-alignment', 2); });
 
     // Add the toggle buttons to the action row.
-    positionRow.add_suffix(left_button);
-    positionRow.add_suffix(center_button);
-    positionRow.add_suffix(right_button);
+    //
+    row.add_suffix(left_button);
+    row.add_suffix(center_button);
+    row.add_suffix(right_button);
 
     // Inside each panel box, the order of indicators should be provided.
     // Use a spin button with the corresponding initial value.
-    const init_panel_box_location = settings.get_int('panel-box-location');
+    //
+    const init_panel_box_location = settings.get_int('panel-priority');
     const number_button = new Gtk.SpinButton({valign : Gtk.Align.CENTER});
     number_button.set_adjustment(new Gtk.Adjustment({
       lower : -100,
@@ -75,69 +116,82 @@ export default class GlasaExtensionPreferences extends ExtensionPreferences {
     }));
 
     // Let the spin button update the settings state.
+    //
     number_button.connect('value-changed', () => {
-      settings.set_int('panel-box-location',
-                       number_button.get_adjustment().value);
+      settings.set_int('panel-priority', number_button.get_adjustment().value);
     });
 
     // Add it to the GUI.
-    positionRow.add_suffix(number_button);
-
-    // Create an option for a custom message in the eye menu.
-    const messageRow = new Adw.ActionRow(
-        {title : 'Menu Message', subtitle : 'Confirm with Enter'});
-
-    group.add(messageRow);
-
-    // Create a text box where the user can enter the message
-    const panel_message =
-        new Gtk.EntryBuffer({text : settings.get_string('panel-message')});
-    const panel_message_box = new Gtk.Entry(
-        {buffer : panel_message, hexpand : true, valign : Gtk.Align.CENTER})
-    // Make pressing Enter in the box update the message in settings
-    panel_message_box.connect(
-        'activate',
-        () => { settings.set_string('panel-message', panel_message.text); });
-    // Add the box to the row
-    messageRow.add_suffix(panel_message_box);
-
     //
-    //
-    const render_group = new Adw.PreferencesGroup({title : 'Appearance'});
-    page.add(render_group);
+    row.add_suffix(number_button);
 
-    //
-    //
-    const render_depth_row = new Adw.SpinRow({
-      title : 'Virtual Eye Depth',
-      subtitle : 'Smaller values enhance crossed eyes',
+    return row;
+  }
+
+  // Row for Custom Message in the Popup Menu
+  //
+  _new_message_row() {
+    let settings = this._settings;
+
+    const row = new Adw.EntryRow({
+      title : _('Popup Menu Message'),
+      show_apply_button : true,
+      text : settings.get_string('popup-menu-message'),
     });
-    render_depth_row.set_adjustment(new Gtk.Adjustment({
+
+    row.connect('apply',
+                () => { settings.set_string('popup-menu-message', row.text); });
+
+    // Toggle to enable or disable popup menu message
+    //
+    const toggle = new Gtk.Switch({
+      valign : Gtk.Align.CENTER,
+      active : settings.get_boolean('popup-menu-show-message'),
+    });
+    row.add_suffix(toggle);
+    settings.bind('popup-menu-show-message', toggle, 'active',
+                  Gio.SettingsBindFlags.DEFAULT);
+
+    return row;
+  }
+
+  // Row for Eye Depth
+  //
+  _new_depth_row() {
+    let settings = this._settings;
+
+    const row = new Adw.SpinRow({
+      title : _('Virtual Eye Depth'),
+      subtitle : _('Smaller values enhance the cross-eye effect'),
+    });
+
+    row.set_adjustment(new Gtk.Adjustment({
       lower : 1,
       upper : 20,
-      value : 3,
+      value : settings.get_double('eye-depth'),
       step_increment : 1,
-      page_increment : 5,
+      page_increment : 1,
       page_size : 0,
     }));
-    settings.bind('render-depth', render_depth_row, 'value',
-                  Gio.SettingsBindFlags.DEFAULT);
-    // render_depth_row.connect('value-changed', () => {
-    //   settings.set_double('render-depth',
-    //                       render_depth_row.get_adjustment().value);
-    // });
-    render_group.add(render_depth_row);
 
-    //
-    //
-    const render_blinking_row = new Adw.SwitchRow({
-      title : _('Toggle Eye Blinking'),
+    settings.bind('eye-depth', row, 'value', Gio.SettingsBindFlags.DEFAULT);
+
+    return row;
+  }
+
+  // Row for Eye Blinking
+  //
+  _new_blinking_row() {
+    let settings = this._settings;
+
+    const row = new Adw.SwitchRow({
+      title : _('Blinking'),
       subtitle : _('Switch on or off the eye blinking animation'),
-      active : settings.get_boolean('render-blinking'),
+      active : settings.get_boolean('eye-blinking'),
     });
-    // render_blinking_row.active = settings.get_boolean('render-blinking');
-    settings.bind('render-blinking', render_blinking_row, 'active',
-                  Gio.SettingsBindFlags.DEFAULT);
-    render_group.add(render_blinking_row);
+
+    settings.bind('eye-blinking', row, 'active', Gio.SettingsBindFlags.DEFAULT);
+
+    return row;
   }
 }
