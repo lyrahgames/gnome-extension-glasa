@@ -184,7 +184,7 @@ export default class GlasaExtension extends Extension {
   }
 
   _position_changed() {
-    this._indicator.get_parent().remove_actor(this._indicator);
+    this._indicator.get_parent().remove_child(this._indicator);
     let boxes = {
       0 : Main.panel._leftBox,
       1 : Main.panel._centerBox,
@@ -222,7 +222,7 @@ export default class GlasaExtension extends Extension {
     //
     let cr = this._icon.get_context();
     let theme_node = this._icon.get_theme_node();
-    Clutter.cairo_set_source_color(cr, theme_node.get_foreground_color());
+    cr.setSourceColor(theme_node.get_foreground_color());
     cr.setLineWidth(LINE_WIDTH);
 
     // Use shortcuts for width and height.
