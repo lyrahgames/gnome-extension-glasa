@@ -4,10 +4,7 @@ import Gio from 'gi://Gio';
 import Adw from 'gi://Adw';
 import Gtk from 'gi://Gtk';
 
-import {
-  ExtensionPreferences,
-  gettext as _
-} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
+import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 export default class GlasaExtensionPreferences extends ExtensionPreferences {
   fillPreferencesWindow(window) {
@@ -17,8 +14,8 @@ export default class GlasaExtensionPreferences extends ExtensionPreferences {
     const settings = this.getSettings();
 
     const page = new Adw.PreferencesPage({
-      title : _('General'),
-      icon_name : 'dialog-information-symbolic',
+      title: _('General'),
+      icon_name: 'dialog-information-symbolic',
     });
     window.add(page);
 
@@ -28,9 +25,8 @@ export default class GlasaExtensionPreferences extends ExtensionPreferences {
 
   _new_appearance_group(settings) {
     const group = new Adw.PreferencesGroup({
-      title : _('Appearance'),
-      description :
-          _('Configure the appearance and rendering of the indicator\'s icon'),
+      title: _('Appearance'),
+      description: _("Configure the appearance and rendering of the indicator's icon"),
     });
 
     group.add(this._new_position_row(settings));
@@ -42,8 +38,8 @@ export default class GlasaExtensionPreferences extends ExtensionPreferences {
 
   _new_popup_menu_group(settings) {
     const group = new Adw.PreferencesGroup({
-      title : _('Popup Menu'),
-      description : _('Configure the popup menu'),
+      title: _('Popup Menu'),
+      description: _('Configure the popup menu'),
     });
 
     group.add(this._new_message_row(settings));
@@ -55,8 +51,8 @@ export default class GlasaExtensionPreferences extends ExtensionPreferences {
   //
   _new_position_row(settings) {
     const row = new Adw.ActionRow({
-      title : _('Top Panel Location'),
-      subtitle : _('Alignment and Order'),
+      title: _('Top Panel Location'),
+      subtitle: _('Alignment and Order'),
     });
 
     // Create a group of three buttons to
@@ -64,33 +60,42 @@ export default class GlasaExtensionPreferences extends ExtensionPreferences {
     // Make sure to set the vertical alignment of buttons.
     // Otherwise, the buttons will get stretched vertically.
     //
-    const left_button =
-        new Gtk.ToggleButton({label : _('Left'), valign : Gtk.Align.CENTER});
-    const center_button =
-        new Gtk.ToggleButton({label : _('Center'), valign : Gtk.Align.CENTER});
-    const right_button =
-        new Gtk.ToggleButton({label : _('Right'), valign : Gtk.Align.CENTER});
+    const left_button = new Gtk.ToggleButton({
+      label: _('Left'),
+      valign: Gtk.Align.CENTER,
+    });
+    const center_button = new Gtk.ToggleButton({
+      label: _('Center'),
+      valign: Gtk.Align.CENTER,
+    });
+    const right_button = new Gtk.ToggleButton({
+      label: _('Right'),
+      valign: Gtk.Align.CENTER,
+    });
     center_button.set_group(left_button);
     right_button.set_group(left_button);
 
     // Set the initial state of the toggle button group.
     //
     const init_panel_box = settings.get_int('panel-alignment');
-    if (init_panel_box == 0)
-      left_button.set_active(true);
-    else if (init_panel_box == 1)
-      center_button.set_active(true);
-    else if (init_panel_box == 2)
-      right_button.set_active(true);
+    if (init_panel_box === 0) left_button.set_active(true);
+    else if (init_panel_box === 1) center_button.set_active(true);
+    else if (init_panel_box === 2) right_button.set_active(true);
 
     // Make toggle buttons update the settings state.
     //
-    left_button.connect('toggled', //
-                        () => { settings.set_int('panel-alignment', 0); });
-    center_button.connect('toggled',
-                          () => { settings.set_int('panel-alignment', 1); });
-    right_button.connect('toggled',
-                         () => { settings.set_int('panel-alignment', 2); });
+    left_button.connect(
+      'toggled', //
+      () => {
+        settings.set_int('panel-alignment', 0);
+      }
+    );
+    center_button.connect('toggled', () => {
+      settings.set_int('panel-alignment', 1);
+    });
+    right_button.connect('toggled', () => {
+      settings.set_int('panel-alignment', 2);
+    });
 
     // Add the toggle buttons to the action row.
     //
@@ -102,15 +107,17 @@ export default class GlasaExtensionPreferences extends ExtensionPreferences {
     // Use a spin button with the corresponding initial value.
     //
     const init_panel_box_location = settings.get_int('panel-priority');
-    const number_button = new Gtk.SpinButton({valign : Gtk.Align.CENTER});
-    number_button.set_adjustment(new Gtk.Adjustment({
-      lower : -100,
-      upper : 100,
-      value : init_panel_box_location,
-      step_increment : 1,
-      page_increment : 1,
-      page_size : 0,
-    }));
+    const number_button = new Gtk.SpinButton({valign: Gtk.Align.CENTER});
+    number_button.set_adjustment(
+      new Gtk.Adjustment({
+        lower: -100,
+        upper: 100,
+        value: init_panel_box_location,
+        step_increment: 1,
+        page_increment: 1,
+        page_size: 0,
+      })
+    );
 
     // Let the spin button update the settings state.
     //
@@ -129,23 +136,23 @@ export default class GlasaExtensionPreferences extends ExtensionPreferences {
   //
   _new_message_row(settings) {
     const row = new Adw.EntryRow({
-      title : _('Popup Menu Message'),
-      show_apply_button : true,
-      text : settings.get_string('popup-menu-message'),
+      title: _('Popup Menu Message'),
+      show_apply_button: true,
+      text: settings.get_string('popup-menu-message'),
     });
 
-    row.connect('apply',
-                () => { settings.set_string('popup-menu-message', row.text); });
+    row.connect('apply', () => {
+      settings.set_string('popup-menu-message', row.text);
+    });
 
     // Toggle to enable or disable popup menu message
     //
     const toggle = new Gtk.Switch({
-      valign : Gtk.Align.CENTER,
-      active : settings.get_boolean('popup-menu-show-message'),
+      valign: Gtk.Align.CENTER,
+      active: settings.get_boolean('popup-menu-show-message'),
     });
     row.add_suffix(toggle);
-    settings.bind('popup-menu-show-message', toggle, 'active',
-                  Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('popup-menu-show-message', toggle, 'active', Gio.SettingsBindFlags.DEFAULT);
 
     return row;
   }
@@ -154,18 +161,20 @@ export default class GlasaExtensionPreferences extends ExtensionPreferences {
   //
   _new_depth_row(settings) {
     const row = new Adw.SpinRow({
-      title : _('Virtual Eye Depth'),
-      subtitle : _('Smaller values enhance the cross-eye effect'),
+      title: _('Virtual Eye Depth'),
+      subtitle: _('Smaller values enhance the cross-eye effect'),
     });
 
-    row.set_adjustment(new Gtk.Adjustment({
-      lower : 1,
-      upper : 20,
-      value : settings.get_double('eye-depth'),
-      step_increment : 1,
-      page_increment : 1,
-      page_size : 0,
-    }));
+    row.set_adjustment(
+      new Gtk.Adjustment({
+        lower: 1,
+        upper: 20,
+        value: settings.get_double('eye-depth'),
+        step_increment: 1,
+        page_increment: 1,
+        page_size: 0,
+      })
+    );
 
     settings.bind('eye-depth', row, 'value', Gio.SettingsBindFlags.DEFAULT);
 
@@ -176,9 +185,9 @@ export default class GlasaExtensionPreferences extends ExtensionPreferences {
   //
   _new_blinking_row(settings) {
     const row = new Adw.SwitchRow({
-      title : _('Blinking'),
-      subtitle : _('Switch on or off the eye blinking animation'),
-      active : settings.get_boolean('eye-blinking'),
+      title: _('Blinking'),
+      subtitle: _('Switch on or off the eye blinking animation'),
+      active: settings.get_boolean('eye-blinking'),
     });
 
     settings.bind('eye-blinking', row, 'active', Gio.SettingsBindFlags.DEFAULT);
