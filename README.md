@@ -38,6 +38,10 @@ Afterwards enable the extension.
 
     make enable
 
+Download npm packages to enable linting and code formatting.
+
+    npm install
+
 You should now be able to see the eyes icon appear in the panel.
 Otherwise, restart the GNOME shell again by pressing `Alt+F2` and typing `r`.
 
