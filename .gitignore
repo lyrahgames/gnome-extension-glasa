@@ -1,18 +1,18 @@
 *
-!*/
 
-!*.js
-!metadata.json
-!*.css
-!*.xml
-
-!makefile
-
-!COPYING
-!README.md
-
+!docs/
 !docs/**
+!po/
+!po/**
 
 !.gitignore
+!COPYING
+!README.md
+!eslint.config.mjs
+!makefile
+!metadata.json
+!package.json
 
-*.zip
+!*.css
+!*.js
+!*.xml

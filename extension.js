@@ -1,13 +1,12 @@
 'use strict';
 
-import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
-import Clutter from 'gi://Clutter';
 import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
 import St from 'gi://St';
+
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
+import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 // This class is used to separate the logic of the blinking animation
 // from the main extension class and the rendering code.
@@ -22,12 +21,6 @@ class GlasaBlinkAnimation {
     this._blink_duration = 10;
   }
 
-  // This function returns the animated value
-  // that will always lie in the interval [0,1].
-  // The value will only change when 'update' is called.
-  //
-  value() { return this._value; }
-
   // This function advances the animation to the next time step
   // by incrementing the counter and recomputing the animation value.
   //
@@ -40,11 +33,11 @@ class GlasaBlinkAnimation {
     // Return pseudo-random integer number in the interval [min, max].
     //
     const RANDOM_UNIFORM = (min, max) => {
-      let scale = max - min + 1;
+      const scale = max - min + 1;
       return min + Math.floor(Math.random() * scale);
     };
     //
-    const RANDOM_BLINK_PERIOD = () => { //
+    const RANDOM_BLINK_PERIOD = () => {
       return RANDOM_UNIFORM(MIN_BLINK_PERIOD, MAX_BLINK_PERIOD);
     };
     //
@@ -76,9 +69,15 @@ class GlasaBlinkAnimation {
     //
     // See: https://en.wikipedia.org/wiki/Bump_function
     //
-    const F = (x) => { return (x <= 0.0) ? 0.0 : Math.exp(-1.0 / x); };
-    const TRANSITION = (x) => { return F(x) / (F(x) + F(1 - x)); };
-    const BUMP = (x) => { return TRANSITION(3 * x) * TRANSITION(3 * (1 - x)); };
+    const F = x => {
+      return x <= 0.0 ? 0.0 : Math.exp(-1.0 / x);
+    };
+    const TRANSITION = x => {
+      return F(x) / (F(x) + F(1 - x));
+    };
+    const BUMP = x => {
+      return TRANSITION(3 * x) * TRANSITION(3 * (1 - x));
+    };
 
     // If the blink is already over then return directly
     // without the actual calculation of the bump function.
@@ -106,9 +105,7 @@ export default class GlasaExtension extends Extension {
   }
 
   enable() {
-    const ICON_SIZE = 16;
-    const ICON_WIDTH = 3 * ICON_SIZE;
-    const ICON_HEIGHT = ICON_SIZE;
+    const ICON_SIZE = 50;
     const FRAME_TIME = 50; // ms
 
     // Retrieve the extension's settings and make changing them
@@ -124,30 +121,30 @@ export default class GlasaExtension extends Extension {
     // Set up the indicator's icon by providing width and height
     // and the repaint callback that will continuously render the eyes.
     //
-    this._icon = new St.DrawingArea({width : ICON_WIDTH, height : ICON_HEIGHT});
+    this._icon = new St.DrawingArea({width: ICON_SIZE});
     this._repaint_handler = null;
-    this._repaint_handler =
-        this._icon.connect('repaint', () => { this._render(); });
+    this._repaint_handler = this._icon.connect('repaint', () => {
+      this._render();
+    });
 
     // Continuously repaint the icon
     // after a fixed frame time by using a basic timer.
     //
     this._update_handler = null;
-    this._update_handler =
-        GLib.timeout_add(GLib.PRIORITY_DEFAULT, FRAME_TIME, () => {
-          this._icon.queue_repaint();
-          return GLib.SOURCE_CONTINUE;
-        });
+    this._update_handler = GLib.timeout_add(GLib.PRIORITY_DEFAULT, FRAME_TIME, () => {
+      this._icon.queue_repaint();
+      return GLib.SOURCE_CONTINUE;
+    });
 
     // Set up the indicator itself and make it a button.
     //
-    let indicator_name = `${this.metadata.name} Indicator`;
+    const indicator_name = `${this.metadata.name} Indicator`;
     this._indicator = new PanelMenu.Button(0.0, indicator_name, false);
 
     // Correctly style and align the indicator's icon
     // and finally add it to the indicator itself.
     //
-    let hbox = new St.BoxLayout({style_class : 'system-status-icon'});
+    const hbox = new St.BoxLayout({style_class: 'system-status-icon'});
     hbox.add_child(this._icon);
     this._indicator.add_child(hbox);
     this._icon.queue_repaint();
@@ -185,13 +182,13 @@ export default class GlasaExtension extends Extension {
 
   _position_changed() {
     this._indicator.get_parent().remove_child(this._indicator);
-    let boxes = {
-      0 : Main.panel._leftBox,
-      1 : Main.panel._centerBox,
-      2 : Main.panel._rightBox,
+    const boxes = {
+      0: Main.panel._leftBox,
+      1: Main.panel._centerBox,
+      2: Main.panel._rightBox,
     };
-    let p = this._settings.get_int('panel-alignment');
-    let q = this._settings.get_int('panel-priority');
+    const p = this._settings.get_int('panel-alignment');
+    const q = this._settings.get_int('panel-priority');
     boxes[p].insert_child_at_index(this._indicator, q);
   }
 
@@ -199,16 +196,14 @@ export default class GlasaExtension extends Extension {
     this._indicator.menu.removeAll();
 
     if (this._settings.get_boolean('popup-menu-show-message')) {
-      let popup_menu_message = this._settings.get_string('popup-menu-message');
-      if (popup_menu_message != "") {
-        this._indicator.menu.addAction(popup_menu_message, () => {});
-        this._indicator.menu.addMenuItem(
-            new PopupMenu.PopupSeparatorMenuItem());
+      const popup_menu_message = this._settings.get_string('popup-menu-message');
+      if (popup_menu_message !== '') {
+        this._indicator.menu.addMenuItem(new PopupMenu.PopupMenuItem(popup_menu_message));
+        this._indicator.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
       }
     }
 
-    this._indicator.menu.addAction(_("Preferences"),
-                                   () => this.openPreferences());
+    this._indicator.menu.addAction(_('Preferences'), () => this.openPreferences());
   }
 
   // This function is the repaint callback
@@ -220,34 +215,33 @@ export default class GlasaExtension extends Extension {
 
     // Get and set up the Cairo context.
     //
-    let cr = this._icon.get_context();
-    let theme_node = this._icon.get_theme_node();
+    const cr = this._icon.get_context();
+    const theme_node = this._icon.get_theme_node();
     cr.setSourceColor(theme_node.get_foreground_color());
     cr.setLineWidth(LINE_WIDTH);
 
     // Use shortcuts for width and height.
     //
-    let width = this._icon.width;
-    let height = this._icon.height;
+    const width = this._icon.width;
+    const height = this._icon.height;
 
     // Get relative mouse position for eyes to look at.
     //
-    let [offset_x, offset_y] = this._icon.get_transformed_position();
-    let [mouse_x, mouse_y, mask] = global.get_pointer();
+    const [offset_x, offset_y] = this._icon.get_transformed_position();
+    let [mouse_x, mouse_y] = global.get_pointer();
     mouse_x -= offset_x;
     mouse_y -= offset_y;
 
     // After start-up the offset values might be 'NaN'.
     // This results in a critical error from Cairo.
     //
-    if (isNaN(mouse_x) || isNaN(mouse_y))
-      return;
+    if (isNaN(mouse_x) || isNaN(mouse_y)) return;
 
     // Draw animated comic-style eyes.
     //
     let lid_closing = 0.0;
     if (this._settings.get_boolean('eye-blinking')) {
-      lid_closing = this._animation.value();
+      lid_closing = this._animation._value;
       this._animation.update();
     }
     this._draw_comic_eyes(cr, width, height, mouse_x, mouse_y, lid_closing);
@@ -259,57 +253,79 @@ export default class GlasaExtension extends Extension {
   // For other eye styles, another function like this could be introduced.
   //
   _draw_comic_eyes(
-      cr,                   // Cairo Context
-      width, height,        //
-      look_at_x, look_at_y, // Look-At Position on Screen
-      lid_closing // Parameter between 0 (for eye open) and 1 (for eye closed)
+    cr, // Cairo Context
+    width,
+    height, //
+    look_at_x,
+    look_at_y, // Look-At Position on Screen
+    lid_closing // Parameter between 0 (for eye open) and 1 (for eye closed)
   ) {
-    // const EYE_DEPTH_SCALE = 3;
     const EYE_DEPTH_SCALE = this._settings.get_double('eye-depth');
     const BROW_RADIUS_SCALE = 1.4;
     const IRIS_RADIUS_SCALE = 0.5;
+    const EYEBROW_OFFSET_Y = 2;
 
     // The radius of the eyeballs need to be computed in such a way
     // that the brows can be placed above them.
     //
-    let eye_radius = height / (1 + BROW_RADIUS_SCALE);
+    const eye_radius = height / (1 + BROW_RADIUS_SCALE);
 
     // The eye radius is used as reference length.
     //
-    let eye_depth = EYE_DEPTH_SCALE * eye_radius;
-    let brow_radius = BROW_RADIUS_SCALE * eye_radius;
-    let iris_radius = IRIS_RADIUS_SCALE * eye_radius;
+    const eye_depth = EYE_DEPTH_SCALE * eye_radius;
+    const brow_radius = BROW_RADIUS_SCALE * eye_radius;
+    const iris_radius = IRIS_RADIUS_SCALE * eye_radius;
 
     // Draw left eye.
     //
-    let left_center = width / 2 - eye_radius + cr.getLineWidth() / 2;
-    this._draw_eye(cr,                                 //
-                   left_center, brow_radius,           //
-                   eye_depth, eye_radius, iris_radius, //
-                   look_at_x, look_at_y,               //
-                   lid_closing);
+    const left_center = width / 2 - eye_radius + cr.getLineWidth() / 2;
+    this._draw_eye(
+      cr, //
+      left_center,
+      brow_radius, //
+      eye_depth,
+      eye_radius,
+      iris_radius, //
+      look_at_x,
+      look_at_y, //
+      lid_closing
+    );
 
     // Draw left brow.
     //
-    cr.arc(left_center, brow_radius,              //
-           brow_radius - cr.getLineWidth() / 2,   //
-           5.0 * Math.PI / 4, 6.5 * Math.PI / 4); //
+    cr.arc(
+      left_center,
+      brow_radius + EYEBROW_OFFSET_Y, //
+      brow_radius - cr.getLineWidth() / 2, //
+      (5.0 * Math.PI) / 4,
+      (6.5 * Math.PI) / 4
+    ); //
     cr.stroke();
 
     // Draw right eye.
     //
-    let right_center = width / 2 + eye_radius - cr.getLineWidth() / 2;
-    this._draw_eye(cr,                                 //
-                   right_center, brow_radius,          //
-                   eye_depth, eye_radius, iris_radius, //
-                   look_at_x, look_at_y,               //
-                   lid_closing);
+    const right_center = width / 2 + eye_radius - cr.getLineWidth() / 2;
+    this._draw_eye(
+      cr, //
+      right_center,
+      brow_radius, //
+      eye_depth,
+      eye_radius,
+      iris_radius, //
+      look_at_x,
+      look_at_y, //
+      lid_closing
+    );
 
     // Draw right brow.
     //
-    cr.arc(right_center, brow_radius,           //
-           brow_radius - cr.getLineWidth() / 2, //
-           5.5 * Math.PI / 4, 7 * Math.PI / 4); //
+    cr.arc(
+      right_center,
+      brow_radius + EYEBROW_OFFSET_Y, //
+      brow_radius - cr.getLineWidth() / 2, //
+      (5.5 * Math.PI) / 4,
+      (7 * Math.PI) / 4
+    ); //
     cr.stroke();
   }
 
@@ -319,27 +335,31 @@ export default class GlasaExtension extends Extension {
   // for setting up styles with more than a single eye.
   //
   _draw_eye(
-      cr,                      // Cairo Context
-      center_x, center_y,      // Position of the Eye Center
-      eye_depth,               // Virtual Depth Behind the Screen
-      eye_radius, iris_radius, //
-      look_at_x, look_at_y,    // Position on Screen for Eye to Look At
-      lid_closing              // Ratio in [0,1] for Lid to be closed
+    cr, // Cairo Context
+    center_x,
+    center_y, // Position of the Eye Center
+    eye_depth, // Virtual Depth Behind the Screen
+    eye_radius,
+    iris_radius, //
+    look_at_x,
+    look_at_y, // Position on Screen for Eye to Look At
+    lid_closing // Ratio in [0,1] for Lid to be closed
   ) {
+    const EYE_SCALE = 0.85;
+
     cr.save();
 
     // Calculate look-at coordinates relative to center position.
     //
     cr.translate(center_x, center_y);
+    cr.scale(EYE_SCALE, EYE_SCALE);
     look_at_x -= center_x;
     look_at_y -= center_y;
 
     // Compute distances from eye position to look-at position.
     //
-    let projected_distance =
-        Math.sqrt(look_at_x * look_at_x + look_at_y * look_at_y);
-    let distance = Math.sqrt(projected_distance * projected_distance +
-                             eye_depth * eye_depth);
+    const projected_distance = Math.sqrt(look_at_x * look_at_x + look_at_y * look_at_y);
+    const distance = Math.sqrt(projected_distance * projected_distance + eye_depth * eye_depth);
 
     // Iris Movement
     //
@@ -356,9 +376,8 @@ export default class GlasaExtension extends Extension {
     //
     const IRIS_MOVE_SCALE_BOUND = 0.45;
     let iris_move_scale = projected_distance / distance;
-    if (iris_move_scale > IRIS_MOVE_SCALE_BOUND)
-      iris_move_scale = IRIS_MOVE_SCALE_BOUND;
-    let iris_move = eye_radius * iris_move_scale;
+    if (iris_move_scale > IRIS_MOVE_SCALE_BOUND) iris_move_scale = IRIS_MOVE_SCALE_BOUND;
+    const iris_move = eye_radius * iris_move_scale;
 
     // Iris Squish
     //
@@ -369,7 +388,7 @@ export default class GlasaExtension extends Extension {
     // But this expression is not aware of the movement bound.
     // Instead, the previously computed iris movement will be used.
     //
-    let iris_scale = Math.sqrt(1 - iris_move_scale * iris_move_scale);
+    const iris_scale = Math.sqrt(1 - iris_move_scale * iris_move_scale);
 
     // This computation is not founded in mathematics
     // It can be more visually appealing to allow for stronger squishing of the
@@ -379,9 +398,13 @@ export default class GlasaExtension extends Extension {
 
     // Draw eye outline.
     //
-    cr.arc(0, 0,                               // Offset
-           eye_radius - cr.getLineWidth() / 2, // Radius
-           0, 2 * Math.PI);                    // Start/Stop Angle
+    cr.arc(
+      0,
+      0, // Offset
+      eye_radius - cr.getLineWidth() / 2, // Radius
+      0,
+      2 * Math.PI
+    ); // Start/Stop Angle
     cr.stroke();
 
     // Draw iris/pupil.
@@ -390,9 +413,13 @@ export default class GlasaExtension extends Extension {
     cr.rotate(Math.PI / 2 - Math.atan2(look_at_x, look_at_y));
     cr.translate(iris_move, 0);
     cr.scale(iris_scale, 1);
-    cr.arc(0, 0,                                // Offset
-           iris_radius - cr.getLineWidth() / 2, // Radius
-           0, 2 * Math.PI);                     // Start/Stop Angle
+    cr.arc(
+      0,
+      0, // Offset
+      iris_radius - cr.getLineWidth() / 2, // Radius
+      0,
+      2 * Math.PI
+    ); // Start/Stop Angle
     cr.fill();
     cr.restore();
 
@@ -401,7 +428,7 @@ export default class GlasaExtension extends Extension {
     // The style could be improved by filling non-convex shapes.
     // However, non-convex shapes seem not be filled correctly.
     //
-    let lid_angle = 0.5 * Math.PI - Math.acos(1 - 2 * lid_closing);
+    const lid_angle = 0.5 * Math.PI - Math.acos(1 - 2 * lid_closing);
     cr.arc(0, 0, eye_radius, lid_angle - Math.PI, -lid_angle);
     cr.closePath();
     cr.fill();

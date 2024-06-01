@@ -2,7 +2,7 @@ EXTENSION_NAME = glasa
 EXTENSION_UUID = $(EXTENSION_NAME)@lyrahgames.github.io
 PACK_NAME = $(EXTENSION_UUID).shell-extension.zip
 
-.phony: install uninstall enable disable pack prefs test
+.phony: install uninstall enable disable pack prefs test update-pot
 
 install: pack
 	gnome-extensions install --force $(PACK_NAME)
@@ -17,10 +17,15 @@ disable:
 	gnome-extensions disable $(EXTENSION_UUID)
 
 pack:
-	gnome-extensions pack --force
+	gnome-extensions pack --podir=po --force
 
 prefs:
 	gnome-extensions prefs $(EXTENSION_UUID)
 
 test: install enable
-	dbus-run-session -- gnome-shell --nested --wayland
+	env SHELL_DEBUG=backtrace-warnings \
+		G_MESSAGES_DEBUG='GNOME Shell' \
+		dbus-run-session -- gnome-shell --nested --wayland
+
+update-pot:
+	xgettext --from-code=UTF-8 --output=po/$(EXTENSION_UUID).pot *.js
