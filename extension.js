@@ -1,11 +1,12 @@
 'use strict';
 
-import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 import GLib from 'gi://GLib';
 import St from 'gi://St';
+
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
+import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 // This class is used to separate the logic of the blinking animation
 // from the main extension class and the rendering code.
@@ -104,9 +105,7 @@ export default class GlasaExtension extends Extension {
   }
 
   enable() {
-    const ICON_SIZE = 20;
-    const ICON_WIDTH = 3 * ICON_SIZE;
-    const ICON_HEIGHT = ICON_SIZE;
+    const ICON_SIZE = 50;
     const FRAME_TIME = 50; // ms
 
     // Retrieve the extension's settings and make changing them
@@ -122,7 +121,7 @@ export default class GlasaExtension extends Extension {
     // Set up the indicator's icon by providing width and height
     // and the repaint callback that will continuously render the eyes.
     //
-    this._icon = new St.DrawingArea({width: ICON_WIDTH, height: ICON_HEIGHT});
+    this._icon = new St.DrawingArea({width: ICON_SIZE});
     this._repaint_handler = null;
     this._repaint_handler = this._icon.connect('repaint', () => {
       this._render();
@@ -261,10 +260,10 @@ export default class GlasaExtension extends Extension {
     look_at_y, // Look-At Position on Screen
     lid_closing // Parameter between 0 (for eye open) and 1 (for eye closed)
   ) {
-    // const EYE_DEPTH_SCALE = 3;
     const EYE_DEPTH_SCALE = this._settings.get_double('eye-depth');
     const BROW_RADIUS_SCALE = 1.4;
     const IRIS_RADIUS_SCALE = 0.5;
+    const EYEBROW_OFFSET_Y = 2;
 
     // The radius of the eyeballs need to be computed in such a way
     // that the brows can be placed above them.
@@ -296,7 +295,7 @@ export default class GlasaExtension extends Extension {
     //
     cr.arc(
       left_center,
-      brow_radius, //
+      brow_radius + EYEBROW_OFFSET_Y, //
       brow_radius - cr.getLineWidth() / 2, //
       (5.0 * Math.PI) / 4,
       (6.5 * Math.PI) / 4
@@ -322,7 +321,7 @@ export default class GlasaExtension extends Extension {
     //
     cr.arc(
       right_center,
-      brow_radius, //
+      brow_radius + EYEBROW_OFFSET_Y, //
       brow_radius - cr.getLineWidth() / 2, //
       (5.5 * Math.PI) / 4,
       (7 * Math.PI) / 4
@@ -346,11 +345,14 @@ export default class GlasaExtension extends Extension {
     look_at_y, // Position on Screen for Eye to Look At
     lid_closing // Ratio in [0,1] for Lid to be closed
   ) {
+    const EYE_SCALE = 0.85;
+
     cr.save();
 
     // Calculate look-at coordinates relative to center position.
     //
     cr.translate(center_x, center_y);
+    cr.scale(EYE_SCALE, EYE_SCALE);
     look_at_x -= center_x;
     look_at_y -= center_y;
 
